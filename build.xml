@@ -20,4 +20,9 @@
     <mkdir dir="${dist}/lib"/>
     <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}"/>
     </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
 </project>
