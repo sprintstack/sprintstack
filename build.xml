@@ -7,19 +7,33 @@
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
 
+  <path id="build-classpath" description="The default classpath.">
+    <fileset dir="lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
   <target name="init">
     <tstamp/>
     <mkdir dir="${build}"/>
   </target>
 
   <target name="compile" depends="init">
-    <javac srcdir="${src}" destdir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="build-classpath"/>
+    </javac>
   </target>
 
   <target name="dist" depends="compile">
     <mkdir dir="${dist}/lib"/>
-    <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}"/>
-    </target>
+    <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar"
+         basedir="${build}">
+      <manifest>
+        <attribute name="Main-Class"
+                   value="Rhinode" />
+      </manifest>
+    </jar>
+  </target>
 
   <target name="clean">
     <delete dir="${build}"/>
