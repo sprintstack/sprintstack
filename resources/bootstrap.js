@@ -1,0 +1,4 @@
+var require = function (name) {
+  
+}
+
