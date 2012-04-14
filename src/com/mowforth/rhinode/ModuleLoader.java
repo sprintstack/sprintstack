@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.io.IOException;
 import javax.script.*;
+import org.json.simple.JSONObject;
 
 public class ModuleLoader {
 
@@ -36,6 +37,7 @@ public class ModuleLoader {
                         Path packageJson = localPath.resolve("package.json");
                         if (Files.exists(packageJson)) {
                             String mainPath = parsePackage(packageJson);
+                            return Paths.get(mainPath);
                         }
                     }
             }
@@ -46,7 +48,9 @@ public class ModuleLoader {
 
     private static String parsePackage(Path path) {
         String json = loadFile(path);
-        return "";
+        JSONObject parsed = JSON.decode(json);
+        String main = (String)parsed.get("main");
+        return main;
     }
 
     private static void setupJarFS() {
