@@ -76,7 +76,6 @@ public class ModuleLoader {
     }
 
     public static Object require(String name, ScriptEngine engine, Object exports) {
-        System.out.println(name);
         Path module = resolve(name);
         String source = loadFile(module);
         try {

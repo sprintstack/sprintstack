@@ -24,7 +24,7 @@ class REPL {
             while ((input = console.readLine()) != null) {
                 try {
                     Object out = engine.eval(input);
-                    System.out.println(out.toString());
+                    System.out.print(out);
                 } catch (ScriptException e) {
                     System.out.println(e);
                 }
@@ -32,7 +32,7 @@ class REPL {
             }
         } catch (IOException e) {
                 System.out.println(e);
-                //                System.exit(1);
+                System.exit(1);
             }
     }
 
