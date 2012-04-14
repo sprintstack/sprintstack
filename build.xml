@@ -38,7 +38,7 @@
       <zipgroupfileset dir="${lib}" includes="*.jar"/>
       <manifest>
         <attribute name="Main-Class"
-                   value="Rhinode" />
+                   value="com.mowforth.rhinode.Rhinode" />
       </manifest>
     </jar>
   </target>
