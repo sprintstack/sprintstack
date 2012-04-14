@@ -14,6 +14,9 @@ public class Rhinode {
         ModuleLoader.require("bootstrap", engine);
         ModuleLoader.require("base", engine);
 
+        REPL r = new REPL(engine);
+        r.start();
+
         System.exit(0);
     }
 
