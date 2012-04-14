@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.io.IOException;
 import javax.script.*;
 
-class ModuleLoader {
+public class ModuleLoader {
 
     private static FileSystem jar;
 
@@ -23,9 +23,30 @@ class ModuleLoader {
 
         if (Files.exists(resource)) {
             return resource;
-        } 
+        } else {
+            // Failing that, check if we're looking for a
+            // local file
+            Path localPath = Paths.get(name);
+            if (Files.exists(localPath)) {
+                    // Is localPath a file or folder?
+                    if (Files.isRegularFile(localPath)) {
+                        return localPath;
+                    } else {
+                        // Look for package.json
+                        Path packageJson = localPath.resolve("package.json");
+                        if (Files.exists(packageJson)) {
+                            String mainPath = parsePackage(packageJson);
+                        }
+                    }
+            }
+        }
 
         return null;
+    }
+
+    private static String parsePackage(Path path) {
+        String json = loadFile(path);
+        return "";
     }
 
     private static void setupJarFS() {
@@ -39,19 +60,25 @@ class ModuleLoader {
         }
     }
 
-    private static String loadFile (Path path) {
+    private static String loadFile(Path path) {
         try {
             byte[] bytes = Files.readAllBytes(path);
             return new String(bytes);
         } catch (IOException e) { return null; }
     }
 
-    public static Object require (String name, ScriptEngine engine) {
+    public static Object require(String name, ScriptEngine engine) {
+        return require(name, engine, null);
+    }
+
+    public static Object require(String name, ScriptEngine engine, Object exports) {
+        System.out.println(name);
         Path module = resolve(name);
         String source = loadFile(module);
         try {
+            if (exports != null) engine.put("exports", exports);
             Object e = engine.eval(source);
             return e;
-        } catch (ScriptException e) { return null; }
+        } catch (ScriptException e) { System.out.println(e); return null; }
     }
 }

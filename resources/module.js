@@ -1,0 +1,3 @@
+function Module() {
+  this.exports = {};
+}

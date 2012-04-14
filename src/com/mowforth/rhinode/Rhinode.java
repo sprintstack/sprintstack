@@ -12,7 +12,7 @@ public class Rhinode {
         engine = factory.getEngineByName("JavaScript");
 
         ModuleLoader.require("bootstrap", engine);
-        ModuleLoader.require("os", engine);
+        ModuleLoader.require("base", engine);
 
         System.exit(0);
     }
