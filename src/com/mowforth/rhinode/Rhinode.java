@@ -7,21 +7,14 @@ public class Rhinode {
     private static ScriptEngine engine;
 
     public static void main(String[] args) {
-    
-        ScriptEngineManager factory = new ScriptEngineManager();
-        engine = factory.getEngineByName("JavaScript");
 
-        ModuleLoader.require("module", engine);
-        ModuleLoader.require("base", engine);
+        ModuleLoader.require("module");
+        ModuleLoader.require("base");
 
-        REPL r = new REPL(engine);
+        REPL r = new REPL(Environment.getDefaultEngine());
         r.start();
 
         System.exit(0);
-    }
-
-    public static ScriptEngine getEngine() {
-        return engine;
     }
 
 }

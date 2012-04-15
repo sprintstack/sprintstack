@@ -1,11 +1,14 @@
 importPackage(com.mowforth.rhinode);
 
 function Module() {
-  this.require = function (name) {
-    var exports = {};
-    ModuleLoader.require(name,
-                       Rhinode.getEngine(), exports);
-    return exports;
+  this.exports = {};
+
+  this.require = function (id) {
+    return ModuleLoader.require(id, this.exports);
+  }
+
+  this.resolve = function(id) {
+    return ModuleLoader.resolveString(id);
   }
 }
 

@@ -46,6 +46,10 @@ public class ModuleLoader {
         return null;
     }
 
+    public static String resolveString(String id) {
+        return resolve(id).toString();
+    }
+
     private static String parsePackage(Path path) {
         String json = loadFile(path);
         JSONObject parsed = JSON.decode(json);
@@ -74,18 +78,23 @@ public class ModuleLoader {
         } catch (IOException e) { return null; }
     }
 
-    public static Object require(String name, ScriptEngine engine) {
-        return require(name, engine, null);
+    public static Object require(String name) {
+        ScriptEngine engine = Environment.getDefaultEngine();
+        return require(name, null, engine);
     }
 
-    public static Object require(String name, ScriptEngine engine, Object exports) {
+    public static Object require(String name, Object exports) {
+        ScriptEngine engine = Environment.newScriptEngine();
+        return require(name, exports, engine);
+    }
+
+    private static Object require(String name, Object exports, ScriptEngine engine) {
         Path module = resolve(name);
         String source = loadFile(module);
         try {
             if (exports != null) engine.put("exports", exports);
-            SimpleScriptContext ctx = new SimpleScriptContext();
-            Object e = engine.eval(source, ctx);
-            return e;
+            Object e = engine.eval(source);
+            return engine.get("exports");
         } catch (ScriptException e) { System.out.println(e); return null; }
     }
 }
