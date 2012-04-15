@@ -4,7 +4,21 @@ node.js on Java, courtesy of Rhino.
 
 ## Getting started
 
-todo
+To run rhinode, you'll need >= JDK 7. To build, you'll need ant.
+
+### Build
+
+    git clone git@github.com:m0wfo/rhinode.git
+    cd rhinode
+    ant jar
+
+### Run
+
+    java -jar dist/rhinode.jar
+
+### Download
+
+Download the latest prebuilt jar [here](https://github.com/downloads/m0wfo/rhinode/rhinode.jar).
 
 ## License
 
