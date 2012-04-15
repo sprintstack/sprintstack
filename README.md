@@ -1,6 +1,6 @@
 # rhinode
 
-node.js on Java, courtesy of Rhino.
+node.js on Java, courtesy of [Rhino](http://www.mozilla.org/rhino/).
 
 ## Getting started
 
