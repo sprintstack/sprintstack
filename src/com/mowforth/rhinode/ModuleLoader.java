@@ -60,7 +60,10 @@ public class ModuleLoader {
                 HashMap<String,String> options = new HashMap<String,String>();
                 URI jarURI = URI.create("jar:file:" + jarPath.toUri().getPath());
                 jar = FileSystems.newFileSystem(jarURI, options);
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                System.out.println("Couldn't read core library file.");
+                System.exit(1);
+            }
         }
     }
 
@@ -80,7 +83,8 @@ public class ModuleLoader {
         String source = loadFile(module);
         try {
             if (exports != null) engine.put("exports", exports);
-            Object e = engine.eval(source);
+            SimpleScriptContext ctx = new SimpleScriptContext();
+            Object e = engine.eval(source, ctx);
             return e;
         } catch (ScriptException e) { System.out.println(e); return null; }
     }
