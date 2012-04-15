@@ -16,6 +16,8 @@ To run rhinode, you'll need >= JDK 7. To build, you'll need ant.
 
     java -jar dist/rhinode.jar
 
+loads up a REPL (note, multiline statements aren't supported at present).
+
 ### Download
 
 Download the latest prebuilt jar [here](https://github.com/downloads/m0wfo/rhinode/rhinode.jar).
