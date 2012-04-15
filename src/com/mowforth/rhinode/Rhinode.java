@@ -11,7 +11,7 @@ public class Rhinode {
         ScriptEngineManager factory = new ScriptEngineManager();
         engine = factory.getEngineByName("JavaScript");
 
-        ModuleLoader.require("bootstrap", engine);
+        ModuleLoader.require("module", engine);
         ModuleLoader.require("base", engine);
 
         REPL r = new REPL(engine);
