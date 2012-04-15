@@ -43,7 +43,16 @@ public class ModuleLoader {
             }
         }
 
-        return null;
+        try {
+            return bouncePath(name);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static Path bouncePath(String name) throws IOException {
+        if (!name.endsWith(".js")) return resolve(name.concat(".js"));
+        throw new IOException();
     }
 
     public static String resolveString(String id) {
@@ -83,16 +92,24 @@ public class ModuleLoader {
         return require(name, null, engine);
     }
 
-    public static Object require(String name, Object exports) {
+    public static Object require(String name, Object obj) {
         ScriptEngine engine = Environment.newScriptEngine();
-        return require(name, exports, engine);
+        return require(name, obj, engine);
     }
 
-    private static Object require(String name, Object exports, ScriptEngine engine) {
+    private static Object require(String name, Object obj, ScriptEngine engine) {
         Path module = resolve(name);
+        if (module == null) {
+            System.out.println("Couldn't find module with that name.");
+            return null;
+        }
+
         String source = loadFile(module);
         try {
-            if (exports != null) engine.put("exports", exports);
+            if (obj != null) {
+                engine.put("module", obj);
+                engine.eval("var exports = module.exports;");
+            }
             Object e = engine.eval(source);
             return engine.get("exports");
         } catch (ScriptException e) { System.out.println(e); return null; }

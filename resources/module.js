@@ -4,7 +4,7 @@ function Module() {
   this.exports = {};
 
   this.require = function (id) {
-    return ModuleLoader.require(id, this.exports);
+    return ModuleLoader.require(id, new Module());
   }
 
   this.resolve = function(id) {
@@ -12,6 +12,6 @@ function Module() {
   }
 }
 
-var require = new Module().require;
-
+var module = new Module();
+var require = module.require;
 
