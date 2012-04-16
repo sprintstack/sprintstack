@@ -22,6 +22,8 @@ loads up a REPL (note, multiline statements aren't supported at present).
 
 Download the latest prebuilt jar [here](https://github.com/downloads/m0wfo/rhinode/rhinode.jar).
 
+Rhinode is very alpha-ish at the moment; you're better off cloning and building from source as it's in a constant state of flux at the moment... constructive criticism, hate-mail, offers of love, money or patches are all much appreciated.
+
 ## License
 
 Copyright (C) 2012 Chris Mowforth

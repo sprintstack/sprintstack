@@ -33,11 +33,13 @@ public class ModuleLoader {
                     if (Files.isRegularFile(localPath)) {
                         return localPath;
                     } else {
+                        System.out.println("dir");
                         // Look for package.json
                         Path packageJson = localPath.resolve("package.json");
                         if (Files.exists(packageJson)) {
                             String mainPath = parsePackage(packageJson);
-                            return Paths.get(mainPath);
+                            System.out.println(mainPath);
+                            return localPath.resolve(mainPath);
                         }
                     }
             }
@@ -63,6 +65,7 @@ public class ModuleLoader {
         String json = loadFile(path);
         JSONObject parsed = JSON.decode(json);
         String main = (String)parsed.get("main");
+        System.out.println("p");
         return main;
     }
 
