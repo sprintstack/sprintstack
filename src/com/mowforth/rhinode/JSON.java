@@ -15,10 +15,11 @@ class JSON {
         try {
             try {
                 StringReader reader = new StringReader(input);
+
                 Object obj = parser.parse(reader);
                 return (JSONObject)obj;
-            } catch (IOException e) { return null; }
-        } catch (ParseException e) { return null; }
+            } catch (IOException e) { System.out.println(e); return null; }
+        } catch (ParseException e) { System.out.println(e); return null; }
     }
 
 }
