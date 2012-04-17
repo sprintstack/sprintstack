@@ -1,3 +1,2 @@
-#!/bin/sh
-cd `dirname "$0"`
-java -jar ../dist/rhinode.jar
+#!/usr/bin/env sh
+java -jar `dirname "$0"`/../dist/rhinode.jar
