@@ -8,9 +8,6 @@ public class Rhinode {
 
     public static void main(String[] args) {
 
-        ModuleLoader.require("module");
-        ModuleLoader.require("base");
-
         REPL r = new REPL(Environment.getDefaultEngine());
         r.start();
 

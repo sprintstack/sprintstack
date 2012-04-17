@@ -6,14 +6,21 @@ Object.extend = function(a,b) {
 }
 
 function Module() {
-  this.exports = {};
+  this.exports = {}
 
   this.require = function (id) {
     var mod = ModuleLoader.require(id, new Module());
-    var union = Object.extend(mod.intermediate, mod.exports);
-    mod.exports = union;
-    mod.intermediate = null;
-    return mod.exports;
+    if (mod != null) {
+      if (mod.rawJSON != null) {
+        
+      } else {
+        var union = Object.extend(mod.intermediate, mod.exports);
+        mod.exports = union;
+        mod.intermediate = null;
+        return mod.exports;
+      }
+    }
+    return null;
   }
 
   this.resolve = function(id) {

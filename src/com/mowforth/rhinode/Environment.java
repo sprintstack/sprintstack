@@ -9,7 +9,9 @@ class Environment {
 
     public static ScriptEngine newScriptEngine() {
         if (manager == null) manager = new ScriptEngineManager();
-        return manager.getEngineByName("JavaScript");
+        ScriptEngine engine = manager.getEngineByName("JavaScript");
+        ModuleLoader.require("module", null, engine);
+        return engine;
     }
 
     public static ScriptEngine getDefaultEngine() {

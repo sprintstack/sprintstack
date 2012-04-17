@@ -16,6 +16,10 @@ public class ModuleLoader {
     private static FileSystem jar;
 
     private static Path resolve(String name) {
+        return resolve(name, null);
+    }
+
+    private static Path resolve(String name, String ext) {
         // Test if we're referring to a core module-
         // First, we need to unzip the JAR
         setupJarFS();
@@ -44,15 +48,21 @@ public class ModuleLoader {
         }
 
         try {
-            return bouncePath(name);
+            return bouncePath(name, ext);
         } catch (IOException e) {
             return null;
         }
     }
 
-    private static Path bouncePath(String name) throws IOException {
-        if (!name.endsWith(".js")) return resolve(name.concat(".js"));
-        throw new IOException();
+    private static Path bouncePath(String name, String ext) throws IOException {
+        if (ext == null) {
+            return resolve(name.concat(".js"), "js");
+        } else if (ext == "js") {
+            String prefix = name.substring(0, (name.length()-2));
+            return resolve(prefix.concat("json"), "json");
+        } else {
+            throw new IOException();
+        }
     }
 
     public static String resolveString(String id) {
@@ -97,20 +107,24 @@ public class ModuleLoader {
         return require(name, obj, engine);
     }
 
-    private static Object require(String name, Object obj, ScriptEngine engine) {
+    public static Object require(String name, Object obj, ScriptEngine engine) {
         Path module = resolve(name);
-        if (module == null) {
-            System.out.println("Couldn't find module with that name.");
-            return null;
-        }
+        if (module == null) return null;
 
         String source = loadFile(module);
         try {
             if (obj != null) {
                 engine.put("module", obj);
-                engine.eval("var exports = {};");
-                Object e = engine.eval(source);
-                engine.eval("module.intermediate = exports;");
+
+                if (module.endsWith(".json")) {
+                    engine.put("rawJSON", source);
+                    engine.eval("module.rawJSON = rawJSON;");
+                } else {
+                    engine.eval("var exports = {};");
+                    Object e = engine.eval(source);
+                    engine.eval("module.intermediate = exports;");
+                }
+
                 return engine.get("module");
             } else {
                 engine.eval(source);
@@ -118,4 +132,5 @@ public class ModuleLoader {
             }
         } catch (ScriptException e) { System.out.println(e); return null; }
     }
+
 }
