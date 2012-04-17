@@ -33,13 +33,11 @@ public class ModuleLoader {
                     if (Files.isRegularFile(localPath)) {
                         return localPath;
                     } else {
-                        System.out.println("dir");
                         // Look for package.json
                         Path packageJson = localPath.resolve("package.json");
                         if (Files.exists(packageJson)) {
                             String mainPath = parsePackage(packageJson);
-                            System.out.println(mainPath);
-                            return localPath.resolve(mainPath);
+                            return resolve(localPath.resolve(mainPath).toString());
                         }
                     }
             }
@@ -65,7 +63,6 @@ public class ModuleLoader {
         String json = loadFile(path);
         JSONObject parsed = JSON.decode(json);
         String main = (String)parsed.get("main");
-        System.out.println("p");
         return main;
     }
 
@@ -111,10 +108,14 @@ public class ModuleLoader {
         try {
             if (obj != null) {
                 engine.put("module", obj);
-                engine.eval("var exports = module.exports;");
+                engine.eval("var exports = {};");
+                Object e = engine.eval(source);
+                engine.eval("module.intermediate = exports;");
+                return engine.get("module");
+            } else {
+                engine.eval(source);
+                return null;
             }
-            Object e = engine.eval(source);
-            return engine.get("exports");
         } catch (ScriptException e) { System.out.println(e); return null; }
     }
 }

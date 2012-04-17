@@ -1,10 +1,19 @@
 importPackage(com.mowforth.rhinode);
 
+Object.extend = function(a,b) {
+  for (var key in b) { a[key] = b[key]; };
+  return a;
+}
+
 function Module() {
   this.exports = {};
 
   this.require = function (id) {
-    return ModuleLoader.require(id, new Module());
+    var mod = ModuleLoader.require(id, new Module());
+    var union = Object.extend(mod.intermediate, mod.exports);
+    mod.exports = union;
+    mod.intermediate = null;
+    return mod.exports;
   }
 
   this.resolve = function(id) {
@@ -12,6 +21,5 @@ function Module() {
   }
 }
 
-var module = new Module();
-var require = module.require;
+var require = new Module().require;
 
