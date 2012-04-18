@@ -1,10 +1,16 @@
 importPackage(java.lang);
 
-var print = function(str) {
-  System.out.println(str);
+var Base = function() {
+
+  this.print = function(str) {
+    System.out.println(str);
+  }
+
+  this.alert = function(text) {
+    javax.swing.JOptionPane.showMessageDialog(null, text);
+  }
+
 }
 
-var alert = function(text) {
-  javax.swing.JOptionPane.showMessageDialog(null, text);
-}
+module.exports = new Base();
 
