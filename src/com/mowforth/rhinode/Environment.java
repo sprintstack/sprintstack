@@ -6,7 +6,8 @@ class Environment {
 
     public static ScriptEngine newScriptEngine() {
         ScriptEngine engine = new ScriptEngine();
-        ModuleLoader.require("module", null, engine);
+        Object ret = ModuleLoader.require("module", null, engine);
+        if (ret != null) ModuleLoader.require("error", null, engine);
         return engine;
     }
 
