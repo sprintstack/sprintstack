@@ -1,7 +1,5 @@
 package com.mowforth.rhinode;
 
-import javax.script.*;
-
 public class Rhinode {
 
     private static ScriptEngine engine;
