@@ -1,15 +1,11 @@
 package com.mowforth.rhinode;
 
-import javax.script.*;
-
 class Environment {
 
-    private static ScriptEngineManager manager;
     private static ScriptEngine defaultEngine;
 
     public static ScriptEngine newScriptEngine() {
-        if (manager == null) manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
+        ScriptEngine engine = new ScriptEngine();
         ModuleLoader.require("module", null, engine);
         return engine;
     }

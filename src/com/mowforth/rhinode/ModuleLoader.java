@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.net.URI;
 import java.util.HashMap;
 import java.io.IOException;
-import javax.script.*;
 import org.json.simple.JSONObject;
 
 public class ModuleLoader {
@@ -112,7 +111,6 @@ public class ModuleLoader {
         if (module == null) return null;
 
         String source = loadFile(module);
-        try {
             if (obj != null) {
                 engine.put("module", obj);
 
@@ -121,16 +119,15 @@ public class ModuleLoader {
                     engine.eval("module.rawJSON = rawJSON;");
                 } else {
                     engine.eval("var exports = {};");
-                    Object e = engine.eval(source);
+                    Object e = engine.eval(source, name);
                     engine.eval("module.intermediate = exports;");
                 }
 
                 return engine.get("module");
             } else {
-                engine.eval(source);
+                engine.eval(source, name);
                 return null;
             }
-        } catch (ScriptException e) { System.out.println(e); return null; }
     }
 
 }

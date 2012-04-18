@@ -1,8 +1,6 @@
 package com.mowforth.rhinode;
 
 import java.io.IOException;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import jline.*;
 
 class REPL {
@@ -40,12 +38,10 @@ class REPL {
 
                 input = console.readLine(prompt);
 
-                try {
+
                     Object out = engine.eval(input);
                     System.out.println(out);
-                } catch (ScriptException e) {
-                    System.out.println(e);
-                }
+
             }
         } catch (IOException e) {
                 System.out.println(e);

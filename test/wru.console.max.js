@@ -44,11 +44,11 @@ if (typeof global != "undefined") {
 
         function schedule(fn, delay, args, interval) {
             var id = ++counter;
-            ids[id] = new JavaAdapter(java.util.TimerTask,{run: function () {
+            ids[id] = new org.mozilla.javascript.JavaAdapter(java.util.TimerTask,{run: function () {
                 fn.apply(null, args);
             }});
             interval ?
-                timer.schedule(ids[id], delay, delay)
+               timer.schedule(ids[id], delay, delay)
                 :
                 timer.schedule(ids[id], delay)
             ;
