@@ -12,7 +12,7 @@ var Path = function() {
   }
 
   this.resolve = function() {
-    
+    // todo
   }
 
   this.relative = function(from, to) {
@@ -23,7 +23,7 @@ var Path = function() {
     return IPath.exists(p);
   }
 
-}
+};
 
 module.exports = new Path();
 
