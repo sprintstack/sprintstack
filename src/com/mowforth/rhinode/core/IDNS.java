@@ -20,7 +20,7 @@ public class IDNS {
         } catch (NamingException e) { System.out.println(e); }
     }
 
-    public static String[] resolve(String domain, String record) {
+    public static String[] lookup(String domain, String record) {
         if (provider == null) setupProvider();
 
         try {
@@ -42,4 +42,5 @@ public class IDNS {
             return null;
         }
     }
+
 }
