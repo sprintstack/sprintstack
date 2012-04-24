@@ -20,5 +20,5 @@ var Console = function() {
 
 }
 
-module.exports = new Console();
+var console = new Console();
 

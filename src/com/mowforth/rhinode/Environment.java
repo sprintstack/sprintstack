@@ -8,7 +8,9 @@ class Environment {
 
     public static ScriptEngine newScriptEngine() {
         ScriptEngine engine = new ScriptEngine();
-        Object ret = ModuleLoader.require("module", null, engine);
+        ModuleLoader.require("module", null, engine);
+        ModuleLoader.require("callback", null, engine);
+        ModuleLoader.require("console", null, engine);
         return engine;
     }
 

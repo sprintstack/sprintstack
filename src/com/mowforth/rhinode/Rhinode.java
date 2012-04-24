@@ -2,8 +2,6 @@ package com.mowforth.rhinode;
 
 public class Rhinode {
 
-    private static ScriptEngine engine;
-
     public static void main(String[] args) {
         if (args.length == 0) {
             REPL r = new REPL(Environment.getDefaultEngine());

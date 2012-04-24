@@ -11,14 +11,10 @@ function Module() {
   this.require = function (id) {
     var mod = ModuleLoader.require(id, new Module());
     if (mod != null) {
-      if (mod.rawJSON != null) {
-        
-      } else {
-        var union = Object.extend(mod.intermediate, mod.exports);
-        mod.exports = union;
-        mod.intermediate = null;
-        return mod.exports;
-      }
+      var union = Object.extend(mod.intermediate, mod.exports);
+      mod.exports = union;
+      mod.intermediate = null;
+      return mod.exports;
     }
     return null;
   }
