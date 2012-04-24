@@ -25,8 +25,8 @@ public class Dispatch {
         return system;
     }
 
-    public static Future<Result> future(Callable<Result> work, Completion<Result> callback) {
-        Future<Result> f = Futures.future(work, system.dispatcher()).andThen(callback);
+    public static Future<Object> future(Callable<Object> work, Completion<Object> callback) {
+        Future<Object> f = Futures.future(work, system.dispatcher()).andThen(callback);
         return f;
     }
 

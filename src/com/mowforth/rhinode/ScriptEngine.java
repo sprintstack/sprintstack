@@ -7,7 +7,6 @@ import org.mozilla.javascript.JavaAdapter;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-
 class ScriptEngine {
 
     private Context ctx;
