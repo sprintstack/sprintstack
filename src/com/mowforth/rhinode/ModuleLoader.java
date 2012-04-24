@@ -114,16 +114,15 @@ public class ModuleLoader {
             if (obj != null) {
                 engine.put("module", obj);
 
-                if (module.endsWith(".json")) {
-                    engine.put("rawJSON", source);
-                    engine.eval("module.rawJSON = rawJSON;");
+                if (module.toString().endsWith(".json")) {
+                    return source;
                 } else {
                     engine.eval("var exports = {};");
-                    Object e = engine.eval(source, name);
+                    engine.eval(source, name);
                     engine.eval("module.intermediate = exports;");
+                    return engine.get("module");
                 }
 
-                return engine.get("module");
             } else {
                 engine.eval(source, name);
                 return null;
