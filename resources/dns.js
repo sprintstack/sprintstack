@@ -9,8 +9,8 @@ var DNS = function() {
 
   this.lookup = function(domain, family, callback) {
     // This just does an IPV4 lookup for now...
-    // I presume that's not gonna be a deal-breaker for now.
-    this.lookup(domain, "A", callback);
+    // I presume that's not gonna be a deal-breaker
+    this.resolve(domain, "A", callback);
   }
 
   this.resolve4 = function(domain, callback) {
