@@ -1,4 +1,4 @@
-importPackage(com.mowforth.rhinode);
+importClass(com.mowforth.rhinode.ModuleLoader);
 
 Object.extend = function(a,b) {
   for (var key in b) { a[key] = b[key]; };

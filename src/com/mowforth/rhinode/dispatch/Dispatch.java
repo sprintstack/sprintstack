@@ -21,6 +21,10 @@ public class Dispatch {
         if (system == null) system = ActorSystem.create("RhinodeMaster");
     }
 
+    public static ActorSystem getSystem() {
+        return system;
+    }
+
     public static Future<Result> future(Callable<Result> work, Completion<Result> callback) {
         Future<Result> f = Futures.future(work, system.dispatcher()).andThen(callback);
         return f;
