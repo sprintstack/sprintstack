@@ -3,8 +3,16 @@ importClass(com.mowforth.rhinode.core.IDNS);
 var DNS = function() {
 
   this.resolve = function(domain, rrtype, callback) {
-    var records = IDNS.lookup(domain, rrtype);
-    callback(null, records);
+    async(function() {
+      return IDNS.lookup(domain, rrtype);
+    }, function(err, result) {
+      var data = []; var record = null;
+      while ((record = result.next()) != null) {
+        data.push(record);
+      }
+      
+      callback(err, data);
+    });
   }
 
   this.lookup = function(domain, family, callback) {
@@ -18,33 +26,33 @@ var DNS = function() {
   }
 
   this.resolve6 = function(domain, callback) {
-    this.lookup(domain, "AAAA", callback);
+    this.resolve(domain, "AAAA", callback);
   }
 
   this.resolveMx = function(domain, callback) {
-    this.lookup(domain, "MX", callback);
+    this.resolve(domain, "MX", callback); 
   }
 
   this.resolveTxt = function(domain, callback) {
-    this.lookup(domain, "TXT", callback);
+    this.resolve(domain, "TXT", callback);
   }
 
   this.resolveSrv = function(domain, callback) {
-    this.lookup(domain, "SRV", callback);
+    this.resolve(domain, "SRV", callback);
   }
 
   this.resolveNs = function(domain, callback) {
-    this.lookup(domain, "NS", callback);
+    this.resolve(domain, "NS", callback);
   }
 
   this.resolveCname = function(domain, callback) {
-    this.lookup(domain, "CNAME", callback);
+    this.resolve(domain, "CNAME", callback);
   }
 
   this.reverse = function(ip, callback) {
     var reverseIp = ip.split("").reverse().join("");
     var ptr = reverseIp.concat("in-addr.arpa");
-    IDNS.lookup(ptr, "PTR");
+    this.resolve(ptr, "PTR", callback);
   }
 
 };

@@ -10,6 +10,31 @@ import javax.naming.directory.InitialDirContext;
 
 public class IDNS {
 
+    public static class DNSResult implements NamingEnumeration {
+
+        private NamingEnumeration data;
+
+        public void setEnumeration(NamingEnumeration e) { data = e; }
+
+        public void close() {}
+
+        public boolean hasMore() { return false; }
+
+        public boolean hasMoreElements() { return false; }
+
+        public Object next() {
+            try {
+                return data.next();
+            } catch (NamingException e) { return null; }
+            catch (java.util.NoSuchElementException e) { return null; }
+        }
+
+        public Object nextElement() {
+            return null;
+        }
+
+    }
+
     private static DirContext provider;
 
     private static void setupProvider() {
@@ -20,23 +45,16 @@ public class IDNS {
         } catch (NamingException e) { System.out.println(e); }
     }
 
-    public static String[] lookup(String domain, String record) {
+    public static DNSResult lookup(String domain, String record) {
         if (provider == null) setupProvider();
 
         try {
             Attributes query = provider.getAttributes(domain, new String[] { record });
             Attribute records = query.get(record);
             NamingEnumeration recordData = records.getAll();
-            int size = records.size();
-            String[] data = new String[size];
-            int i = 0;
-
-            while (i < size) {
-                data[i] = recordData.next().toString();
-                i++;
-            }
-
-            return data;
+            DNSResult r = new DNSResult();
+            r.setEnumeration(recordData);
+            return r;
         } catch (NamingException e) {
             System.out.println(e);
             return null;
