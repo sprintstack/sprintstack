@@ -19,6 +19,14 @@ var Path = function() {
     return IPath.relativize(from, to).toString();
   }
 
+  this.exists = function(p, callback) {
+    async(function() {
+      return IPath.exists(p);
+    }, function(err, result) {
+      callback(result);
+    });
+  }
+
   this.existsSync = function(p) {
     return IPath.exists(p);
   }
