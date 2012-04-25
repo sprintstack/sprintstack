@@ -11,6 +11,7 @@ import akka.dispatch.Future;
 import akka.dispatch.Futures;
 import akka.japi.Function;
 import akka.util.Duration;
+import akka.util.Timeout;
 import java.lang.Runnable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +64,10 @@ public class Dispatch {
             }));
 
         return actor;
+    }
+
+    public static Timeout forever() {
+        return new Timeout(5, TimeUnit.SECONDS);
     }
 
 }
