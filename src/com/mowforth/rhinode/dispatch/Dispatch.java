@@ -46,7 +46,7 @@ public class Dispatch {
         return system.scheduler().schedule(Duration.Zero(), d, newActor(), work);
     }
 
-    private static ActorRef newActor() {
+    public static ActorRef newActor() {
         ActorRef actor = system.actorOf(new Props().withCreator(new UntypedActorFactory() {
                 public UntypedActor create() {
                     return new UntypedActor() {
