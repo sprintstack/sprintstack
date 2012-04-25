@@ -1,7 +1,7 @@
 importClass(com.mowforth.rhinode.dispatch.Dispatch);
 importClass(com.mowforth.rhinode.dispatch.IFunction);
 
-function  Agent(obj) {
+function Agent(obj) {
 
   this.agent = Dispatch.agent(obj);
 
@@ -17,6 +17,10 @@ function  Agent(obj) {
 
   this.get = function() {
     return this.agent.get();
+  }
+
+  this.await = function() {
+    this.agent.await(Dispatch.forever());
   }
 
 }

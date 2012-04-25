@@ -14,6 +14,7 @@ class ScriptEngine {
 
     public ScriptEngine() {
         ctx = Context.enter();
+        ctx.setOptimizationLevel(9);
         scope = ctx.initStandardObjects();
         scope = new ImporterTopLevel(ctx);
     }
