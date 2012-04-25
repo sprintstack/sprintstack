@@ -6,8 +6,10 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 import akka.actor.Cancellable;
+import akka.agent.Agent;
 import akka.dispatch.Future;
 import akka.dispatch.Futures;
+import akka.japi.Function;
 import akka.util.Duration;
 import java.lang.Runnable;
 import java.util.concurrent.Callable;
@@ -28,6 +30,10 @@ public class Dispatch {
     public static Future<Object> future(Callable<Object> work, Completion<Object> callback) {
         Future<Object> f = Futures.future(work, system.dispatcher()).andThen(callback);
         return f;
+    }
+
+    public static Agent<Object> agent(Object initial) {
+        return new Agent<Object>(initial, system);
     }
 
     public static Cancellable doOnce(Runnable work, int delay) {
