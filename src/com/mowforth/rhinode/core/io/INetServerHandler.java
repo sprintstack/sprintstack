@@ -1,29 +1,39 @@
 package com.mowforth.rhinode.core.io;
 
 import akka.actor.ActorRef;
+import akka.actor.Props;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import com.mowforth.rhinode.dispatch.Dispatch;
 
 public class INetServerHandler extends SimpleChannelUpstreamHandler {
 
+    private ActorRef actor;
+
+    @Override
+    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        if (actor == null) {
+            actor = Dispatch.getSystem().actorOf(new Props(INetActor.class));
+        }
+    }
+
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        System.out.println("connected");
+        actor.tell("connected");
     }
 
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        System.out.println("disconnected");
+        actor.tell("disconnected");
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        System.out.println("incoming!");
-        System.out.println(e.getMessage().toString());
-        e.getChannel().write(e.getMessage());
+        actor.tell("incoming!");
+        actor.tell(e);
     }
 
 }
