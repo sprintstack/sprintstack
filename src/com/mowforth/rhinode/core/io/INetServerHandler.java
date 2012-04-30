@@ -22,6 +22,7 @@ public class INetServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         System.out.println("incoming!");
+        System.out.println(e.getMessage().toString());
         e.getChannel().write(e.getMessage());
     }
 
