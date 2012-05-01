@@ -2,6 +2,7 @@ package com.mowforth.rhinode.core.io;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import static akka.actor.Actors.poisonPill;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -28,6 +29,11 @@ public class INetServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         actor.tell("disconnected");
+    }
+
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        actor.tell(poisonPill());
     }
 
     @Override
