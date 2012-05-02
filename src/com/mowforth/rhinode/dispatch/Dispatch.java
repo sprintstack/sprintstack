@@ -9,6 +9,7 @@ import akka.actor.Cancellable;
 import akka.agent.Agent;
 import akka.dispatch.Future;
 import akka.dispatch.Futures;
+import akka.dispatch.OnComplete;
 import akka.japi.Function;
 import akka.util.Duration;
 import akka.util.Timeout;
@@ -28,7 +29,7 @@ public class Dispatch {
         return system;
     }
 
-    public static Future<Object> future(Callable<Object> work, Completion<Object> callback) {
+    public static Future<Object> future(Callable<Object> work, OnComplete<Object> callback) {
         Future<Object> f = Futures.future(work, system.dispatcher()).andThen(callback);
         return f;
     }
