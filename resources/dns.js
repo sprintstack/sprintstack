@@ -30,7 +30,21 @@ var DNS = function() {
   }
 
   this.resolveMx = function(domain, callback) {
-    this.resolve(domain, "MX", callback); 
+    var parse = function(err,result) {
+      var res = [];
+      if (result != null) {
+        result.forEach(function(r) {
+          var tuple = r.split(' ');
+          res.push({"priority": tuple[0],
+                    "exchange": tuple[1]});
+        });
+        callback(err, res);
+      } else {
+        callback(err, result);
+      }
+    }
+
+    this.resolve(domain, "MX", parse);
   }
 
   this.resolveTxt = function(domain, callback) {
