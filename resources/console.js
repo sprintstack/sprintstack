@@ -1,9 +1,9 @@
-importClass(com.mowforth.rhinode.dispatch.Logging);
+importClass(com.mowforth.rhinode.dispatch.Dispatch);
 
 var Console = function() {
 
   this.log = function(msg) {
-    Logging.info(msg);
+    this.logger.info(msg);
   }
 
   this.info = function(msg) {
@@ -11,14 +11,16 @@ var Console = function() {
   }
 
   this.warn = function(msg) {
-    Logging.warn(msg);
+    this.logger.warning(msg);
   }
 
   this.error = function(msg) {
-    Logging.error(msg);
+    this.logger.error(msg);
   }
 
 }
+
+Console.prototype.logger = Dispatch.getSystem().log();
 
 var console = new Console();
 
