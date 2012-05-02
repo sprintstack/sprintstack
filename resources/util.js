@@ -1,3 +1,5 @@
+// Based on s.js by Guillermo Rauch
+// https://github.com/guille/s.js
 function s (str) {
   var i = 1, args = arguments;
   return String(str).replace(/%?%(d|s|j)/g, function (symbol, type) {
