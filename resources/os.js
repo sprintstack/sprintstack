@@ -1,20 +1,21 @@
-importPackage(java.lang);
+importClass(java.lang.System);
+importClass(java.lang.Runtime)
 
 var OS = function() {
   this.hostname = function() {
-    return java.net.InetAddress.getLocalHost().getHostName();
+    return java.net.InetAddress.getLocalHost().getHostName().toString();
   }
 
   this.type = function() {
-    return System.getProperty('os.name');
+    return System.getProperty('os.name').toString();
   }
 
   this.arch = function() {
-    return System.getProperty('os.arch');
+    return System.getProperty('os.arch').toString();
   }
 
   this.release = function() {
-    return System.getProperty('os.version');
+    return System.getProperty('os.version').toString();
   }
 
   this.freemem = function() {

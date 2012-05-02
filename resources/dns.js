@@ -31,8 +31,8 @@ var DNS = function() {
 
   this.resolveMx = function(domain, callback) {
     var parse = function(err,result) {
-      var res = [];
       if (result != null) {
+        var res = [];
         result.forEach(function(r) {
           var tuple = r.split(' ');
           res.push({"priority": tuple[0],
