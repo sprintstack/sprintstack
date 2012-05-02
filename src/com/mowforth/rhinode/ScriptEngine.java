@@ -2,6 +2,7 @@ package com.mowforth.rhinode;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.JavaAdapter;
 import org.mozilla.javascript.Scriptable;
@@ -27,9 +28,15 @@ class ScriptEngine {
         try {
             return ctx.evaluateString(scope, input, modName, 1, null);
         } catch (EcmaError e) {
-            System.out.println(e);
-            return null;
+            return handleException(e);
+        } catch (EvaluatorException e) {
+            return handleException(e);
         }
+    }
+
+    public Object handleException(Object e) {
+        System.out.println(e);
+        return null;
     }
 
     public void put(String key, Object value) {
