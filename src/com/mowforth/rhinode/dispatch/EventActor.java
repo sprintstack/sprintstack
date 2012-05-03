@@ -34,6 +34,7 @@ public class EventActor extends UntypedActor {
             if (h.getEvent().equals(message)) {
                 if (h.getHandler() != null) {
                     h.getHandler().apply(argument);
+                    if (h.runOnce()) listeners.remove(h);
                 }
             }
         }
