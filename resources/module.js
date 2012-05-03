@@ -28,7 +28,5 @@ function Module() {
   }
 }
 
-var alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
-
 var require = new Module().require;
 
