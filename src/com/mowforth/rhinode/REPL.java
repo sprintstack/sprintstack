@@ -2,6 +2,7 @@ package com.mowforth.rhinode;
 
 import java.io.IOException;
 import jline.*;
+import com.mowforth.rhinode.dispatch.Dispatch;
 
 class REPL {
 
@@ -20,6 +21,7 @@ class REPL {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
+                    Dispatch.getSystem().shutdown();
                     System.out.println("\nCaught ^C, shutting down...");
                 }
         });
