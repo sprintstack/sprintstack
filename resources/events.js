@@ -14,23 +14,25 @@ var EventEmitter = function() {
     actor.tell(e);
   }
 
-  this.emit = function(event) {
-    var event = new Event(event);
+  this.emit = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var event = new Event(args.shift(), args.shift());
     actor.tell(event);
   }
 
 }
 
 var evt = new EventEmitter();
-evt.on('foo', function() {
-  console.log("inside event!");
+evt.on('foo', function(x) {
+  console.log('in foo');
+
+  x.on('bar', function() {
+    console.log('in bar');
+  });
 });
 
-evt.on('bar', function() {
-  console.log("bar event");
-})
-evt.emit('foo');
-evt.emit('bar');
+evt.emit('foo', evt);
+java.lang.Thread.sleep(100);
 evt.emit('bar');
 java.lang.Thread.sleep(100);
 

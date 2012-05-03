@@ -4,25 +4,23 @@ var util = require('util');
 
 var Console = function() {
 
-  this.log = function(msg) {
-    this.logger.info(msg);
+  logger = Dispatch.getSystem().log();
+
+  this.log = function() {
+    logger.info(util.format.apply(null, arguments));
   }
 
-  this.info = function(msg) {
-    this.log(msg);
+  this.info = this.log;
+
+  this.warn = function() {
+    logger.warning(util.format.apply(null, arguments));
   }
 
-  this.warn = function(msg) {
-    this.logger.warning(msg);
-  }
-
-  this.error = function(msg) {
-    this.logger.error(msg);
+  this.error = function() {
+    logger.error(util.format.apply(null, arguments));
   }
 
 }
-
-Console.prototype.logger = Dispatch.getSystem().log();
 
 module.exports = new Console();
 
