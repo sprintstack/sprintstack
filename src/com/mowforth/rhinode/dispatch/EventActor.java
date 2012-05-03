@@ -20,7 +20,6 @@ public class EventActor extends UntypedActor {
             applyToHandlers(e);
         } else if (message instanceof EventHandler) {
             EventHandler e = (EventHandler)message;
-            System.out.println("handler: " + e.getEvent());
             listeners.add(e);
         }
     }
