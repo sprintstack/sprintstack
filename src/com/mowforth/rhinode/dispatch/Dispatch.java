@@ -9,7 +9,6 @@ import akka.actor.Cancellable;
 import akka.agent.Agent;
 import akka.dispatch.Future;
 import akka.dispatch.Futures;
-import akka.dispatch.OnComplete;
 import akka.japi.Function;
 import akka.util.Duration;
 import akka.util.Timeout;
@@ -23,14 +22,19 @@ public class Dispatch {
 
     public static void setupSystem() {
         if (system == null) system = ActorSystem.create("RhinodeMaster");
+        system.registerOnTermination(new Runnable() {
+            public void run() {
+                System.out.println("all done");
+            }
+        });
     }
 
     public static ActorSystem getSystem() {
         return system;
     }
 
-    public static Future<Object> future(Callable<Object> work, OnComplete<Object> callback) {
-        Future<Object> f = Futures.future(work, system.dispatcher()).andThen(callback);
+    public static Future<Object> future(Callable<Object> work) {
+        Future<Object> f = Futures.future(work, system.dispatcher());
         return f;
     }
 
