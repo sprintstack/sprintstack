@@ -23,3 +23,5 @@ var EventEmitter = function() {
 
 }
 
+exports.EventEmitter = EventEmitter;
+
