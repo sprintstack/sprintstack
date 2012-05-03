@@ -44,15 +44,19 @@ public class Dispatch {
 
     public static Cancellable doOnce(Runnable work, int delay) {
         Duration d = Duration.create(delay, TimeUnit.MILLISECONDS);
-        return system.scheduler().scheduleOnce(d, newActor(), work);
+        return system.scheduler().scheduleOnce(d, newScheduledActor(), work);
     }
 
     public static Cancellable doRegularly(Runnable work, int delay) {
         Duration d = Duration.create(delay, TimeUnit.MILLISECONDS);
-        return system.scheduler().schedule(Duration.Zero(), d, newActor(), work);
+        return system.scheduler().schedule(Duration.Zero(), d, newScheduledActor(), work);
     }
 
-    public static ActorRef newActor() {
+    public static ActorRef newEventHandler() {
+        return system.actorOf(new Props(EventActor.class));
+    }
+
+    private static ActorRef newScheduledActor() {
         ActorRef actor = system.actorOf(new Props().withCreator(new UntypedActorFactory() {
                 public UntypedActor create() {
                     return new UntypedActor() {
