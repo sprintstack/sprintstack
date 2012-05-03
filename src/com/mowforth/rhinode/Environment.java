@@ -9,8 +9,6 @@ class Environment {
     public static ScriptEngine newScriptEngine() {
         ScriptEngine engine = new ScriptEngine();
         ModuleLoader.require("module", null, engine);
-        ModuleLoader.require("callback", null, engine);
-        ModuleLoader.require("console", null, engine);
         return engine;
     }
 
@@ -18,6 +16,7 @@ class Environment {
         if (defaultEngine == null) {
             Dispatch.setupSystem();
             defaultEngine = newScriptEngine();
+            ModuleLoader.require("bootstrap", null, defaultEngine);
         }
         return defaultEngine;
     }

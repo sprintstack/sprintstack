@@ -23,6 +23,10 @@ function Agent(obj) {
     this.agent.await(Dispatch.forever());
   }
 
+  this.stop = function() {
+    this.agent.close();
+  }
+
 }
 
 var Agents = function() {

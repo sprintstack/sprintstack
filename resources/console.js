@@ -1,5 +1,7 @@
 importClass(com.mowforth.rhinode.dispatch.Dispatch);
 
+var util = require('util');
+
 var Console = function() {
 
   this.log = function(msg) {
@@ -22,5 +24,5 @@ var Console = function() {
 
 Console.prototype.logger = Dispatch.getSystem().log();
 
-var console = new Console();
+module.exports = new Console();
 
