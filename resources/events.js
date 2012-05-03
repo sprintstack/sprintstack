@@ -1,3 +1,4 @@
+importClass(Packages.akka.actor.Actors);
 importClass(com.mowforth.rhinode.dispatch.Dispatch);
 importClass(com.mowforth.rhinode.dispatch.Event);
 importClass(com.mowforth.rhinode.dispatch.EventHandler);
@@ -13,15 +14,19 @@ var EventEmitter = function() {
     var e = new EventHandler(event, work);
     actor.tell(e);
     return e;
-  }
+  };
 
   this.emit = function() {
     var args = Array.prototype.slice.call(arguments);
     var event = new Event(args.shift(), args.shift());
     actor.tell(event);
-  }
+  };
 
-}
+  this.stop = function() {
+    actor.tell(Actors.poisonPill());
+  };
+
+};
 
 exports.EventEmitter = EventEmitter;
 
