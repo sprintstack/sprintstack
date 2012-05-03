@@ -12,6 +12,7 @@ var EventEmitter = function() {
 
     var e = new EventHandler(event, work);
     actor.tell(e);
+    return e;
   }
 
   this.emit = function() {
@@ -21,18 +22,4 @@ var EventEmitter = function() {
   }
 
 }
-
-var evt = new EventEmitter();
-evt.on('foo', function(x) {
-  console.log('in foo');
-
-  x.on('bar', function() {
-    console.log('in bar');
-  });
-});
-
-evt.emit('foo', evt);
-java.lang.Thread.sleep(100);
-evt.emit('bar');
-java.lang.Thread.sleep(100);
 
