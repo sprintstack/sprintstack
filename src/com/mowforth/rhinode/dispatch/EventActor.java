@@ -19,8 +19,8 @@ public class EventActor extends UntypedActor {
             Event e = (Event)message;
             applyToHandlers(e);
         } else if (message instanceof EventHandler) {
-            System.out.println("got an evt handler");
             EventHandler e = (EventHandler)message;
+            System.out.println("handler: " + e.getEvent());
             listeners.add(e);
         }
     }
