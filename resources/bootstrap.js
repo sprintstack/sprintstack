@@ -1,7 +1,14 @@
-// Bootstrap globals into main context
+global = this;
 
-console = require('console');
+this.console = require('console');
+this.process = require('process');
 
-require('timers')
+var timers = require('timers');
 
-alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
+this.setTimeout = timers.setTimeout;
+this.setInterval = timers.setInterval;
+this.clearInterval = timers.clearInterval;
+this.clearTimeout = timers.clearTimeout;
+
+this.alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
+
