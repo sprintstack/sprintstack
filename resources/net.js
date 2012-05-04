@@ -70,6 +70,9 @@ var ServerHandler = function(connectionListener) {
     },
     messageReceived: function(ctx, e) {
       this.actor.emit('data', e);
+    },
+    exceptionCaught: function(ctx, e) {
+      this.actor.emit('error');
     }
   });
 };
