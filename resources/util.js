@@ -23,7 +23,7 @@ s.extend = function () {
 
 var Util = function() {
 
-  this.format = s
+  this.format = s;
 
   this.inherits = function(ctor, superCtor) {
     ctor.super_ = superCtor;
@@ -34,6 +34,12 @@ var Util = function() {
         writable: true,
         configurable: true}});
   };
+
+  this.isArray = function (ar) {
+    return Array.isArray(ar) ||
+      (typeof ar === 'object' && objectToString(ar) === '[object Array]');
+  };
+
 };
 
 module.exports = new Util();
