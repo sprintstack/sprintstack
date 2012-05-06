@@ -1,4 +1,4 @@
-package com.mowforth.rhinode;
+package com.mowforth.rhinode.util;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-class JSON {
+public class JSON {
 
     public static JSONObject decode(String input) {
         JSONParser parser = new JSONParser();

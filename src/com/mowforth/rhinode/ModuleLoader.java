@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.io.IOException;
 import org.json.simple.JSONObject;
 
+import com.mowforth.rhinode.util.JSON;
+
 public class ModuleLoader {
 
     private static FileSystem jar;
@@ -19,11 +21,8 @@ public class ModuleLoader {
     }
 
     private static Path resolve(String name, String ext) {
-        // Test if we're referring to a core module-
-        // First, we need to unzip the JAR
-        setupJarFS();
-        
-        Path resource = jar.getPath("/resources/" + name + ".js");
+        // Test if we're referring to a core module
+        Path resource = getJarPath().getParent().resolve("../resources/" + name + ".js").normalize();
 
         if (Files.exists(resource)) {
             return resource;
@@ -65,7 +64,7 @@ public class ModuleLoader {
     }
 
     public static String resolveString(String id) {
-        return resolve(id).toString();
+        return resolve(id).getParent().toString();
     }
 
     private static String parsePackage(Path path) {
@@ -75,18 +74,8 @@ public class ModuleLoader {
         return main;
     }
 
-    private static void setupJarFS() {
-        if (jar == null) {
-            try {
-                Path jarPath = Paths.get(Rhinode.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-                HashMap<String,String> options = new HashMap<String,String>();
-                URI jarURI = URI.create("jar:file:" + jarPath.toUri().getPath());
-                jar = FileSystems.newFileSystem(jarURI, options);
-            } catch (IOException e) {
-                System.out.println("Couldn't read core library file.");
-                System.exit(1);
-            }
-        }
+    private static Path getJarPath() {
+        return Paths.get(Rhinode.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 
     private static String loadFile(Path path) {
@@ -96,37 +85,10 @@ public class ModuleLoader {
         } catch (IOException e) { return null; }
     }
 
-    public static Object require(String name) {
-        ScriptEngine engine = Environment.getDefaultEngine();
-        return require(name, null, engine);
-    }
-
-    public static Object require(String name, Object obj) {
-        ScriptEngine engine = Environment.newScriptEngine();
-        return require(name, obj, engine);
-    }
-
-    public static Object require(String name, Object obj, ScriptEngine engine) {
+    public static String require(String name) {
         Path module = resolve(name);
         if (module == null) return null;
-
-        String source = loadFile(module);
-            if (obj != null) {
-                engine.put("module", obj);
-
-                if (module.toString().endsWith(".json")) {
-                    return source;
-                } else {
-                    engine.eval("var exports = {};");
-                    engine.eval(source, name);
-                    engine.eval("module.intermediate = exports;");
-                    return engine.get("module");
-                }
-
-            } else {
-                engine.eval(source, name);
-                return null;
-            }
+        return loadFile(module);
     }
 
 }
