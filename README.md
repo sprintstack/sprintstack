@@ -22,7 +22,7 @@ Add bin/rhinode to your $PATH
 
     rhinode
 
-to load up a REPL (note, multiline statements aren't supported at present).
+to load up a REPL (JLine support has been removed for now; multiline statements are OK but you might want to install `rlwrap` for more comfort).
 
 ### Download
 
