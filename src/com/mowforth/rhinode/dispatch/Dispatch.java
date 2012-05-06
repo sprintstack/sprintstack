@@ -24,7 +24,7 @@ public class Dispatch {
         if (system == null) system = ActorSystem.create("RhinodeMaster");
         system.registerOnTermination(new Runnable() {
             public void run() {
-                System.out.println("all done");
+                System.out.println("System shutdown.");
             }
         });
     }

@@ -1,32 +1,47 @@
 importClass(com.mowforth.rhinode.ModuleLoader);
+importClass(com.mowforth.rhinode.dispatch.Dispatch);
+importClass(Packages.akka.dispatch.OnComplete);
+importClass(java.util.concurrent.Callable);
 
-Object.extend = function(a,b) {
-  for (var key in b) { a[key] = b[key]; };
-  return a;
-}
+var require = function(id) {
 
-function Module() {
-  this.exports = {}
+  path = ModuleLoader.resolveString(id);
 
-  this.require = function (id) {
-    var mod = ModuleLoader.require(id, new Module());
-    if (mod != null) {
-      if (mod instanceof java.lang.String) {
-        return JSON.parse(mod);
-      } else {
-        var union = Object.extend(mod.intermediate, mod.exports);
-        mod.exports = union;
-        mod.intermediate = null;
-        return mod.exports;
-      }
-    }
-    return null;
+  if (path != null) {
+    var alreadyThere = false;
+    nativeRequire.paths.forEach(function(p) {
+      if (p == path) alreadyThere = true;
+    });
+    if (!alreadyThere) nativeRequire.paths.push(path);
+    return nativeRequire(id);
   }
 
-  this.resolve = function(id) {
-    return ModuleLoader.resolveString(id);
-  }
 }
 
-var require = new Module().require;
+var async = function() {
+  var args = Array.prototype.slice.call(arguments);
+
+  var task = new Callable({call: args.shift()});
+
+  if (args.length > 0) {
+    var cb = new JavaAdapter(OnComplete, {onComplete: args.shift()});
+    return Dispatch.future(task).andThen(cb);
+  } else {
+    return Dispatch.future(task);
+  }
+};
+
+global = this;
+
+var console = require('console');
+var timers = require('timers');
+
+global.console = console;
+
+this.setTimeout = timers.setTimeout;
+this.setInterval = timers.setInterval;
+this.clearInterval = timers.clearInterval;
+this.clearTimeout = timers.clearTimeout;
+
+this.alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
 

@@ -27,5 +27,5 @@ var OS = function() {
   }
 };
 
-exports = new OS();
+module.exports = new OS();
 

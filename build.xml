@@ -23,11 +23,6 @@
     <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
       <classpath refid="build-classpath"/>
     </javac>
-    <mkdir dir="${build}/resources"/>
-    <copy todir="${build}/resources">
-      <fileset dir="resources"
-               includes="*.js"/>
-    </copy>
   </target>
 
   <target name="jar" depends="compile">
