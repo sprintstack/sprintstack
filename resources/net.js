@@ -92,7 +92,6 @@ var Server = function(connectionListener) {
       bootstrap.setPipelineFactory(Pipeline(connectionListener));
       bootstrap.bind(internalAddress);
     }, cb);
-    com.mowforth.rhinode.dispatch.Dispatch.getSystem().awaitTermination();
   };
 
   this.address = function() {
