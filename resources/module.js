@@ -18,6 +18,10 @@ var require = function(id) {
 
 }
 
+require.resolve = function(id) {
+  return ModuleLoader.resolveString(id);
+}
+
 var async = function() {
   var args = Array.prototype.slice.call(arguments);
 
@@ -33,6 +37,8 @@ var async = function() {
 
 global = this;
 
+var fun = require('match');
+var Buffer = require('buffer');
 var console = require('console');
 var timers = require('timers');
 
