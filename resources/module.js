@@ -37,7 +37,6 @@ var async = function() {
 
 global = this;
 
-var fun = require('match');
 var Buffer = require('buffer');
 var console = require('console');
 var timers = require('timers');
