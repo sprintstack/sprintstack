@@ -2,6 +2,7 @@ importClass(java.net.InetSocketAddress);
 importClass(java.util.concurrent.Executors);
 importClass(Packages.org.jboss.netty.bootstrap.ServerBootstrap);
 importClass(Packages.org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory);
+importClass(Packages.org.jboss.netty.channel.ChannelFutureListener);
 importClass(Packages.org.jboss.netty.channel.ChannelPipelineFactory);
 importClass(Packages.org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder);
 importClass(Packages.org.jboss.netty.handler.codec.frame.Delimiters);
@@ -13,7 +14,6 @@ importClass(Packages.org.jboss.netty.channel.SimpleChannelUpstreamHandler);
 var console = require('console');
 var events = require('events');
 var util = require('util');
-
 
 Pipeline = function(connectionListener) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
@@ -31,17 +31,23 @@ Pipeline = function(connectionListener) {
 
 function ConnectionHandler() {
 
-  this.event = null; // Hack! event is temporal and NOT thread-safe
+  this.channel = null;
 
   events.EventEmitter.call(this);
 
-  this.write = function(msg) {
-    this.event.getChannel().write(msg);
+  this.write = function() {
+    var future = this.channel.write(arguments[0]);
+    if (arguments.length == 2) {
+      var listener = new JavaAdapter(ChannelFutureListener, {
+        operationComplete: arguments[1]
+      });
+      future.addListener(listener);
+    }
   };
 
   this.pipe = function(recipient) {
     this.on('data', function(e) {
-      recipient.event.getChannel().write(e.getMessage());
+      recipient.write(e.getMessage());
     });
   };
 
@@ -55,7 +61,7 @@ var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
     actor: new ConnectionHandler(),
     channelOpen: function(ctx, e) {
-      this.actor.event = e;
+      this.actor.channel = e.getChannel();
       this.actor.on('connect', connectionListener);
     },
     channelConnected: function(ctx, e) {
