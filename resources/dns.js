@@ -3,14 +3,13 @@ importClass(com.mowforth.rhinode.core.IDNS);
 var DNS = function() {
 
   this.resolve = function(domain, rrtype, callback) {
-    async(function() {
+    return new future(function() {
       return IDNS.lookup(domain, rrtype);
     }, function(err, result) {
       var data = []; var record = null;
       while ((record = result.next()) != null) {
         data.push(record);
       }
-      
       callback(err, data);
     });
   }

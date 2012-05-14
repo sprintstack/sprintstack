@@ -21,12 +21,14 @@ public class Dispatch {
     private static ActorSystem system;
 
     public static void setupSystem() {
-        if (system == null) system = ActorSystem.create("RhinodeMaster");
-        system.registerOnTermination(new Runnable() {
-            public void run() {
-                System.out.println("System shutdown.");
-            }
-        });
+        if (system == null) {
+            system = ActorSystem.create("RhinodeMaster");
+            system.registerOnTermination(new Runnable() {
+                    public void run() {
+                        System.out.println("System shutdown.");
+                    }
+                });
+        }
     }
 
     public static ActorSystem getSystem() {

@@ -1,7 +1,4 @@
 importClass(com.mowforth.rhinode.ModuleLoader);
-importClass(com.mowforth.rhinode.dispatch.Dispatch);
-importClass(Packages.akka.dispatch.OnComplete);
-importClass(java.util.concurrent.Callable);
 
 var require = function(id) {
 
@@ -22,30 +19,24 @@ require.resolve = function(id) {
   return ModuleLoader.resolveString(id);
 }
 
-var async = function() {
-  var args = Array.prototype.slice.call(arguments);
-
-  var task = new Callable({call: args.shift()});
-
-  if (args.length > 0) {
-    var cb = new JavaAdapter(OnComplete, {onComplete: args.shift()});
-    return Dispatch.future(task).andThen(cb);
-  } else {
-    return Dispatch.future(task);
-  }
-};
-
 global = this;
 
 var console = require('console');
 var timers = require('timers');
+var future = require('future');
 
-global.console = console;
-
+this.console = console;
 this.setTimeout = timers.setTimeout;
 this.setInterval = timers.setInterval;
 this.clearInterval = timers.clearInterval;
 this.clearTimeout = timers.clearTimeout;
 
 this.alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
+
+Number.prototype.times = function(fn) {
+  var i;
+  for (i = 0; i < this; i++) {
+    fn(i);
+  }
+};
 

@@ -1,0 +1,66 @@
+importClass(com.mowforth.rhinode.dispatch.Dispatch);
+importClass(com.mowforth.rhinode.dispatch.IFunction);
+importClass(Packages.akka.dispatch.Await);
+importClass(Packages.akka.dispatch.Filter);
+importClass(Packages.akka.dispatch.Futures);
+importClass(Packages.akka.dispatch.Mapper);
+importClass(Packages.akka.dispatch.OnComplete);
+importClass(Packages.akka.util.Duration);
+importClass(java.util.concurrent.Callable);
+
+var createFuture = function(work, cb) {
+  var future = Dispatch.future(new JavaAdapter(Callable, {call: work}));
+  if (callback != null) {
+    var callback = new JavaAdapter(OnComplete, {onComplete: cb});
+    return future.andThen(callback);
+  }
+  return future;
+}
+
+var future = function(f,cb) {
+  if (f.constructor === Function) {
+    this.future = createFuture(f, cb);
+  } else {
+    this.future = f
+  }
+
+  this.then = function(fn) {
+    var work = new JavaAdapter(Mapper, {apply: function(val) {
+      return createFuture(function() {
+        return fn(val);
+      });
+    }});
+    var mapped = this.future.flatMap(work);
+    return new future(mapped);
+  };
+
+  this.check = function(fn) {
+    var predicate = new JavaAdapter(IFunction, {apply: function(val) {
+      return fn(val);
+    }});
+
+    var filtered = this.future.filter(Filter.filterOf(predicate));
+    return new future(filtered);
+  }
+
+  this.wait = function() {
+    return Await.result(this.future, Duration.Inf());
+  }
+
+  return this;
+};
+
+future.compose = function() {
+  var args = Array.prototype.slice.call(arguments);
+  if (arguments[0].constructor === Array) args = arguments[0];
+
+  var futures = args.map(function(f) {
+    return f.future;
+  });
+
+  var composed = Futures.sequence(futures, Dispatch.getSystem().dispatcher());
+  return new future(composed);
+}
+
+module.exports = future;
+

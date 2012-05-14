@@ -15,6 +15,14 @@ var console = require('console');
 var events = require('events');
 var util = require('util');
 
+
+var wibble = new JavaAdapter(SimpleChannelUpstreamHandler, {
+  channelConnected: function(ctx, e) {
+    console.log('bumeyes!');
+    ctx.sendUpstream(e);
+  }
+});
+
 Pipeline = function(connectionListener) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
     var pipeline = Channels.pipeline();
@@ -23,6 +31,7 @@ Pipeline = function(connectionListener) {
                                                               Delimiters.lineDelimiter()));
     pipeline.addLast("decoder", new StringDecoder());
     pipeline.addLast("encoder", new StringEncoder());
+    pipeline.addLast("bumeyes", wibble);
     pipeline.addLast("handler", ServerHandler(connectionListener));
     return pipeline;
   }});
@@ -91,8 +100,9 @@ var Server = function(connectionListener) {
   this.listen = function(port, cb) {
     async(function() {
       internalAddress = new InetSocketAddress(port);
-      var factory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-                                                      Executors.newCachedThreadPool());
+      var factory = new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(),
+                                                      Executors.newCachedThreadPool(),
+                                                     1);
       var bootstrap = new ServerBootstrap(factory);
 
       bootstrap.setPipelineFactory(Pipeline(connectionListener));
