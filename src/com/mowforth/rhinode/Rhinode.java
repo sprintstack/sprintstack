@@ -7,8 +7,14 @@ public class Rhinode {
 
     public static void main(String[] args) {
         Dispatch.setupSystem();
-        Main.setBootstrap(ModuleLoader.require("module"));
-        Main.main(args);
+
+        if (args.length == 1 && args[0].equals("-worker")) {
+            System.out.println("just a worker bee...");
+        } else {
+            Main.setBootstrap(ModuleLoader.require("module"));
+            Main.main(args);
+        }
+        System.exit(0);
     }
 
 }

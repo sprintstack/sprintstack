@@ -1,3 +1,12 @@
-#!/usr/bin/env sh
-rlwrap java -Dconfig.file=`dirname "$0"`/../etc/application.conf -jar `dirname "$0"`/../dist/rhinode.jar "$@"
+#!/usr/bin/env bash
+
+CXD=`dirname "$0"`
+
+if [ -a /usr/bin/rlwrap ]; then
+    RLWRAP=rlwrap
+else
+    echo 'You might want to install "rlwrap" for a more pleasant REPL experience.'
+fi
+
+exec $RLWRAP java -Dconfig.file=$CXD/../etc/application.conf -jar $CXD/../dist/rhinode-standalone.jar "$@"
 

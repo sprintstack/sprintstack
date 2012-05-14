@@ -40,6 +40,10 @@ var Util = function() {
       (typeof ar === 'object' && objectToString(ar) === '[object Array]');
   };
 
+  this.sleep = function(ms) {
+    java.lang.Thread.sleep(ms);
+  }
+
 };
 
 module.exports = new Util();

@@ -13,7 +13,6 @@ var EventEmitter = function() {
 
     var e = new EventHandler(event, work);
     actor.tell(e);
-    return e;
   };
 
   this.emit = function() {

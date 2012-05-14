@@ -26,11 +26,21 @@
   </target>
 
   <target name="jar" depends="compile">
-    <mkdir dir="${dist}"/>
     <jar jarfile="${dist}/rhinode.jar"
-         basedir="${build}"
+         basedir="${build}">
+      <manifest>
+        <attribute name="Main-Class"
+                   value="com.mowforth.rhinode.Rhinode" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="uberjar" depends="jar">
+    <mkdir dir="${dist}"/>
+    <jar jarfile="${dist}/rhinode-standalone.jar"
          compress="true">
       <zipgroupfileset dir="${lib}" includes="*.jar"/>
+      <zipgroupfileset dir="${dist}" includes="rhinode.jar"/>
       <manifest>
         <attribute name="Main-Class"
                    value="com.mowforth.rhinode.Rhinode" />
