@@ -63,8 +63,12 @@ public class ModuleLoader {
         }
     }
 
-    public static String resolveString(String id) {
+    public static String resolveParent(String id) {
         return resolve(id).getParent().toString();
+    }
+
+    public static String resolveDirect(String id) {
+        return resolve(id).toString();
     }
 
     private static String parsePackage(Path path) {
@@ -78,6 +82,11 @@ public class ModuleLoader {
         return Paths.get(Rhinode.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 
+    public static String loadFile(String location) {
+        Path path = Paths.get(location);
+        return loadFile(path);
+    }
+
     private static String loadFile(Path path) {
         try {
             byte[] bytes = Files.readAllBytes(path);
@@ -88,7 +97,7 @@ public class ModuleLoader {
     public static String require(String name) {
         Path module = resolve(name);
         if (module == null) return null;
-        return loadFile(module);
+        return loadFile(module.toString());
     }
 
 }
