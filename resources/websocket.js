@@ -40,10 +40,9 @@ var Pipeline = function(connectionListener) {
 var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
     getWebSocketLocation: function(msg) {
-      return "ws://" + msg.getHeader(HttpHeaders.Names.HOST) + "/websocket";
+      return "ws://" + msg.getHeader(HttpHeaders.Names.HOST) + "/ws";
     },
     handleHttp: function(ctx, msg) {
-              console.log('http')
       wsfactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(msg), null, false);
       this.handshaker = wsfactory.newHandshaker(msg);
       if (this.handshaker == null) {

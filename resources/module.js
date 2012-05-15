@@ -1,6 +1,7 @@
 importClass(com.mowforth.rhinode.ModuleLoader);
 
-var require = function(id) {
+var require = function() {
+  var id = arguments[0];
 
   if (id.substr(id.length-4, 4) == "json") {
     path = ModuleLoader.resolveDirect(id);
@@ -22,7 +23,7 @@ var require = function(id) {
 }
 
 require.resolve = function(id) {
-  return ModuleLoader.resolveString(id);
+  return ModuleLoader.resolveDirect(id);
 }
 
 global = this;
