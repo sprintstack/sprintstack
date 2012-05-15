@@ -23,7 +23,7 @@ var wibble = new JavaAdapter(SimpleChannelUpstreamHandler, {
   }
 });
 
-Pipeline = function(connectionListener) {
+var Pipeline = function(connectionListener) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
     var pipeline = Channels.pipeline();
 
@@ -45,12 +45,12 @@ function ConnectionHandler() {
   events.EventEmitter.call(this);
 
   this.write = function() {
-    var future = this.channel.write(arguments[0]);
+    var f = this.channel.write(arguments[0]);
     if (arguments.length == 2) {
       var listener = new JavaAdapter(ChannelFutureListener, {
         operationComplete: arguments[1]
       });
-      future.addListener(listener);
+      f.addListener(listener);
     }
   };
 
@@ -98,7 +98,7 @@ var Server = function(connectionListener) {
   var internalAddress = null;
 
   this.listen = function(port, cb) {
-    async(function() {
+    new future(function() {
       internalAddress = new InetSocketAddress(port);
       var factory = new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(),
                                                       Executors.newCachedThreadPool(),
