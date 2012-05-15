@@ -5,6 +5,7 @@ importClass(Packages.akka.dispatch.Filter);
 importClass(Packages.akka.dispatch.Futures);
 importClass(Packages.akka.dispatch.Mapper);
 importClass(Packages.akka.dispatch.OnComplete);
+importClass(Packages.akka.dispatch.Recover);
 importClass(Packages.akka.util.Duration);
 importClass(java.util.concurrent.Callable);
 
@@ -32,7 +33,7 @@ var future = function(f,cb) {
     }});
     var mapped = this.future.flatMap(work);
     return new future(mapped);
-  };
+  }
 
   this.check = function(fn) {
     var predicate = new JavaAdapter(IFunction, {apply: function(val) {
@@ -43,7 +44,23 @@ var future = function(f,cb) {
     return new future(filtered);
   }
 
+  this.recover = function(fn) {
+    var recovery = new JavaAdapter(Recover, {recover: function(err) {
+      return fn(err);
+    }});
+
+    var recoverable = this.future.recoverWith(recovery);
+    return new future(recoverable);
+  }
+
   this.wait = function() {
+    try {
+      return Await.result(this.future, Duration.Inf());
+    } catch (e) {
+      if (e.toString().match("scala.MatchError") != null) {
+        return null;
+      }
+    }
     return Await.result(this.future, Duration.Inf());
   }
 
