@@ -2,7 +2,13 @@ importClass(com.mowforth.rhinode.ModuleLoader);
 
 var require = function(id) {
 
-  path = ModuleLoader.resolveString(id);
+  if (id.substr(id.length-4, 4) == "json") {
+    path = ModuleLoader.resolveDirect(id);
+    var source = ModuleLoader.loadFile(path);
+    return JSON.parse(source);
+  }
+
+  path = ModuleLoader.resolveParent(id);
 
   if (path != null) {
     var alreadyThere = false;
