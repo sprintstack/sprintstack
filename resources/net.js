@@ -31,7 +31,6 @@ var Pipeline = function(connectionListener) {
                                                               Delimiters.lineDelimiter()));
     pipeline.addLast("decoder", new StringDecoder());
     pipeline.addLast("encoder", new StringEncoder());
-    pipeline.addLast("bumeyes", wibble);
     pipeline.addLast("handler", ServerHandler(connectionListener));
     return pipeline;
   }});
@@ -84,7 +83,7 @@ var ServerHandler = function(connectionListener) {
       this.actor.stop();
     },
     messageReceived: function(ctx, e) {
-      this.actor.emit('data', e);
+      this.actor.emit('data', this.actor);
     },
     exceptionCaught: function(ctx, e) {
       this.actor.emit('error');

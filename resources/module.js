@@ -31,6 +31,7 @@ global = this;
 var console = require('console');
 var timers = require('timers');
 var future = require('future');
+var actor = require('actor');
 
 this.console = console;
 this.setTimeout = timers.setTimeout;
