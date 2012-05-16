@@ -9,5 +9,5 @@ else
     echo 'You might want to install "rlwrap" for a more pleasant REPL experience.'
 fi
 
-exec $RLWRAP java -Dconfig.file=$CXD/../etc/application.conf -Drhinode.modpaths=$MODPATHS -jar $CXD/../dist/rhinode-standalone.jar "$@"
+exec $RLWRAP java -XX:+UseParallelGC -Dconfig.file=$CXD/../etc/application.conf -Drhinode.modpaths=$MODPATHS -jar $CXD/../dist/rhinode-standalone.jar "$@"
 
