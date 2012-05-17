@@ -11,10 +11,6 @@ var actorFactory = function(handler) {
   }});
 };
 
-function merge(obj1, obj2) {
-  for (attr in obj2) obj1[attr] = obj2[attr];
-};
-
 var actor = function(fn) {
   var base = {
     preStart: function() {
