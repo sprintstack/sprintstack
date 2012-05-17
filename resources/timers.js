@@ -1,5 +1,3 @@
-importClass(Packages.akka.actor.UntypedActor);
-importClass(Packages.akka.actor.UntypedActorFactory);
 importClass(Packages.akka.util.Duration);
 importClass(com.mowforth.rhinode.dispatch.Dispatch);
 importClass(java.lang.Runnable);
