@@ -1,11 +1,28 @@
+importClass(Packages.akka.actor.UntypedActor);
+importClass(Packages.akka.actor.UntypedActorFactory);
+importClass(Packages.akka.util.Duration);
 importClass(com.mowforth.rhinode.dispatch.Dispatch);
 importClass(java.lang.Runnable);
+importClass(java.util.concurrent.TimeUnit);
+
+function scheduleWork(cb, delay) {
+  var d = Duration.create(delay, TimeUnit.MILLISECONDS);
+  var work = new Runnable({run: cb});
+  var worker = new actor(function(msg) {
+    msg.run();
+  }).actor;
+  return [d, worker, work];
+};
+
+function getScheduler() {
+  return Dispatch.getSystem().scheduler();
+}
 
 var Timers = function() {
 
   this.setTimeout = function(callback, delay) {
-    var work = new Runnable({run: callback});
-    return Dispatch.doOnce(work, delay);
+    [d, worker, work] = scheduleWork(callback, delay);
+    return getScheduler().scheduleOnce(d, worker, work);
   }
 
   this.clearTimeout = function(timeoutId) {
@@ -13,8 +30,9 @@ var Timers = function() {
   }
 
   this.setInterval = function(callback, delay) {
-    var work = new Runnable({run: callback});
-    return Dispatch.doRegularly(work, delay);
+    [d, worker, work] = scheduleWork(callback, delay);
+    return getScheduler().schedule(Duration.Zero(),
+                                   d, worker, work);
   }
 
   this.clearInterval = function(intervalId) {
