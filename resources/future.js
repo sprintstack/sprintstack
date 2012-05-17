@@ -10,7 +10,9 @@ importClass(Packages.akka.util.Duration);
 importClass(java.util.concurrent.Callable);
 
 var createFuture = function(work, cb) {
-  var future = Dispatch.future(new JavaAdapter(Callable, {call: work}));
+  var c = new JavaAdapter(Callable, {call: work});
+  var future = Futures.future(c, Dispatch.getSystem().dispatcher());
+
   if (callback != null) {
     var callback = new JavaAdapter(OnComplete, {onComplete: cb});
     return future.andThen(callback);
