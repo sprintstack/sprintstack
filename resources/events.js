@@ -1,8 +1,8 @@
 importClass(Packages.akka.actor.Actors);
-importClass(com.mowforth.rhinode.dispatch.Dispatch);
-importClass(com.mowforth.rhinode.dispatch.Event);
-importClass(com.mowforth.rhinode.dispatch.EventHandler);
-importClass(com.mowforth.rhinode.dispatch.IFunction);
+importClass(com.sprintstack.dispatch.Dispatch);
+importClass(com.sprintstack.dispatch.Event);
+importClass(com.sprintstack.dispatch.EventHandler);
+importClass(com.sprintstack.dispatch.IFunction);
 
 var EventEmitter = function() {
 

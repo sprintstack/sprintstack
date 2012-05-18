@@ -1,5 +1,5 @@
-importClass(com.mowforth.rhinode.dispatch.Dispatch);
-importClass(com.mowforth.rhinode.dispatch.IFunction);
+importClass(com.sprintstack.dispatch.Dispatch);
+importClass(com.sprintstack.dispatch.IFunction);
 importClass(Packages.akka.dispatch.Await);
 importClass(Packages.akka.dispatch.Filter);
 importClass(Packages.akka.dispatch.Futures);

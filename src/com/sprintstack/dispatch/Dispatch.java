@@ -1,4 +1,4 @@
-package com.mowforth.rhinode.dispatch;
+package com.sprintstack.dispatch;
 
 import akka.actor.ActorSystem;
 import akka.actor.ActorRef;
@@ -22,7 +22,7 @@ public class Dispatch {
 
     public static void setupSystem() {
         if (system == null) {
-            system = ActorSystem.create("RhinodeMaster");
+            system = ActorSystem.create("SprintStackMaster");
             system.registerOnTermination(new Runnable() {
                     public void run() {
                         System.out.println("System shutdown.");

@@ -1,4 +1,4 @@
-importClass(com.mowforth.rhinode.core.IFS);
+importClass(com.sprintstack.core.IFS);
 
 var Fs = function() {
 

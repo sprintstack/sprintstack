@@ -1,4 +1,4 @@
-package com.mowforth.rhinode.dispatch;
+package com.sprintstack.dispatch;
 
 import akka.actor.ActorRef;
 import akka.actor.Address;
@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class SystemDiscovery {
 
     private static JmDNS browser;
-    private static String serviceName = "_hog._tcp.local.";
+    private static String serviceName = "_sprintstack._tcp.local.";
     private static CopyOnWriteArraySet<ActorRef> systems;
 
     private static void setupJmDNS() {

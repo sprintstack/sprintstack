@@ -1,6 +1,6 @@
-<project name="MyProject" default="dist" basedir=".">
+<project name="SprintStack" default="dist" basedir=".">
   <description>
-    node.js on Rhino!
+    Distributed + Evented I/O for Rhino
   </description>
 
   <property name="src" location="src"/>
@@ -26,24 +26,24 @@
   </target>
 
   <target name="jar" depends="compile">
-    <jar jarfile="${dist}/rhinode.jar"
+    <jar jarfile="${dist}/sprintstack.jar"
          basedir="${build}">
       <manifest>
         <attribute name="Main-Class"
-                   value="com.mowforth.rhinode.Rhinode" />
+                   value="com.sprintstack.SprintStack" />
       </manifest>
     </jar>
   </target>
 
   <target name="uberjar" depends="jar">
     <mkdir dir="${dist}"/>
-    <jar jarfile="${dist}/rhinode-standalone.jar"
+    <jar jarfile="${dist}/sprintstack-standalone.jar"
          compress="true">
       <zipgroupfileset dir="${lib}" includes="*.jar"/>
-      <zipgroupfileset dir="${dist}" includes="rhinode.jar"/>
+      <zipgroupfileset dir="${dist}" includes="sprintstack.jar"/>
       <manifest>
         <attribute name="Main-Class"
-                   value="com.mowforth.rhinode.Rhinode" />
+                   value="com.sprintstack.SprintStack" />
       </manifest>
     </jar>
   </target>

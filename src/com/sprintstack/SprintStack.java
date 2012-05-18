@@ -1,9 +1,9 @@
-package com.mowforth.rhinode;
+package com.sprintstack;
 
-import com.mowforth.rhinode.dispatch.Dispatch;
+import com.sprintstack.dispatch.Dispatch;
 import org.mozilla.javascript.tools.shell.Main;
 
-public class Rhinode {
+public class SprintStack {
 
     public static void main(String[] args) {
         Dispatch.setupSystem();

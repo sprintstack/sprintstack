@@ -1,4 +1,4 @@
-importClass(com.mowforth.rhinode.core.IPath);
+importClass(com.sprintstack.core.IPath);
 
 var Path = function() {
 

@@ -1,5 +1,5 @@
 importClass(Packages.akka.util.Duration);
-importClass(com.mowforth.rhinode.dispatch.Dispatch);
+importClass(com.sprintstack.dispatch.Dispatch);
 importClass(java.lang.Runnable);
 importClass(java.util.concurrent.TimeUnit);
 

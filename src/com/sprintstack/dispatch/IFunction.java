@@ -1,4 +1,4 @@
-package com.mowforth.rhinode.dispatch;
+package com.sprintstack.dispatch;
 
 import akka.japi.Function;
 

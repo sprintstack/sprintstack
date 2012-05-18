@@ -1,4 +1,4 @@
-importClass(com.mowforth.rhinode.core.IDNS);
+importClass(com.sprintstack.core.IDNS);
 
 var DNS = function() {
 
