@@ -1,5 +1,6 @@
 importClass(java.net.InetSocketAddress);
-importClass(java.util.concurrent.Executors);
+importClass(java.util.concurrent.CopyOnWriteArraySet);
+importClass(java.util.concurrent.Executor);
 importClass(Packages.org.jboss.netty.bootstrap.ServerBootstrap);
 importClass(Packages.org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory);
 importClass(Packages.org.jboss.netty.channel.ChannelFutureListener);
@@ -12,16 +13,7 @@ importClass(Packages.org.jboss.netty.channel.Channels);
 importClass(Packages.org.jboss.netty.channel.SimpleChannelUpstreamHandler);
 
 var console = require('console');
-var events = require('events');
 var util = require('util');
-
-
-var wibble = new JavaAdapter(SimpleChannelUpstreamHandler, {
-  channelConnected: function(ctx, e) {
-    console.log('bumeyes!');
-    ctx.sendUpstream(e);
-  }
-});
 
 var Pipeline = function(connectionListener) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
@@ -37,60 +29,71 @@ var Pipeline = function(connectionListener) {
 };
 
 
-function ConnectionHandler() {
-
-  this.channel = null;
-
-  events.EventEmitter.call(this);
-
-  this.write = function() {
-    var f = this.channel.write(arguments[0]);
-    if (arguments.length == 2) {
-      var listener = new JavaAdapter(ChannelFutureListener, {
-        operationComplete: arguments[1]
-      });
-      f.addListener(listener);
-    }
-  };
-
-  this.pipe = function(recipient) {
-    this.on('data', function(e) {
-      recipient.write(e.getMessage());
-    });
-  };
-
+Exec = function() {
+  return new Executor({
+  execute: function(fn) {
+    console.log(fn.class)
+    new future(function() {
+      fn.run();
+    })
+  }});
 };
 
 
-util.inherits(ConnectionHandler, events.EventEmitter);
+var socket = function(ctx, e, handlers) {
+  this.write = function(msg, cb) {
+    var f = e.getChannel().write(msg);
+    if (cb == null) return f;
+    f.addListener(
+      new JavaAdapter(ChannelFutureListener, {
+        operationComplete: cb
+      }));
+  }
+
+  this.end = function(msg) {
+    if (msg == null) e.getChannel.close();
+    else
+    this.write(msg, function(future) {
+      future.getChannel().close();
+    });
+  }
+
+  this.address = function() {
+    var addr = e.getChannel().getRemoteAddress();
+    return {"address" : addr.getAddress().toString(),
+           "port" : addr.getPort()};
+  }
+
+  this.on = function(e, fn) {
+    handlers.add([e, fn]);
+  }
+
+  this.emit = function(e) {
+    
+  }
+
+};
 
 
 var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
-    actor: new ConnectionHandler(),
+    handlers: new CopyOnWriteArraySet(),
     channelOpen: function(ctx, e) {
-      this.actor.channel = e.getChannel();
-      this.actor.on('connect', connectionListener);
+      var s = new socket(ctx, e, this.handlers);
+      connectionListener(s);
     },
     channelConnected: function(ctx, e) {
-      this.actor.emit('connect', this.actor);
     },
     channelDisconnected: function(ctx, e) {
-      this.actor.emit('end');
     },
     channelClosed: function(ctx, e) {
-      this.actor.emit('close');
-      this.actor.stop();
     },
     messageReceived: function(ctx, e) {
-      this.actor.emit('data', this.actor);
     },
     exceptionCaught: function(ctx, e) {
-      this.actor.emit('error');
     }
   });
 };
-
 
 var Server = function(connectionListener) {
 
@@ -99,14 +102,15 @@ var Server = function(connectionListener) {
   this.listen = function(port, cb) {
     new future(function() {
       internalAddress = new InetSocketAddress(port);
-      var factory = new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(),
-                                                      Executors.newCachedThreadPool(),
-                                                     1);
+      var factory = new NioServerSocketChannelFactory(Exec(),
+                                                      Exec());
       var bootstrap = new ServerBootstrap(factory);
 
       bootstrap.setPipelineFactory(Pipeline(connectionListener));
       bootstrap.bind(internalAddress);
-    }, cb);
+    }).recover(function(e) {
+      java.lang.System.println(e)
+    });
   };
 
   this.address = function() {
