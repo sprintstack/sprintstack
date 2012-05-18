@@ -12,19 +12,20 @@ importClass(java.util.concurrent.Callable);
 var createFuture = function(work, cb) {
   var c = new JavaAdapter(Callable, {call: work});
   var future = Futures.future(c, Dispatch.getSystem().dispatcher());
-
-  if (callback != null) {
-    var callback = new JavaAdapter(OnComplete, {onComplete: cb});
-    return future.andThen(callback);
-  }
   return future;
 }
 
-var future = function(f,cb) {
+var future = function(f) {
   if (f.constructor === Function) {
-    this.future = createFuture(f, cb);
+    this.future = createFuture(f);
   } else {
     this.future = f
+  }
+
+  this.effect = function(fn) {
+    var callback = new JavaAdapter(OnComplete, {onComplete: fn});
+    var effector = this.future.andThen(callback);
+    return new future(effector);
   }
 
   this.then = function(fn) {
