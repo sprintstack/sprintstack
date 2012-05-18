@@ -1,6 +1,6 @@
 # SprintStack
 
-Distributed + Evented I/O for [Rhino](http://www.mozilla.org/rhino/).
+Concurrent + Evented I/O for [Rhino](http://www.mozilla.org/rhino/).
 
 ## Getting started
 
