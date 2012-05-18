@@ -1,4 +1,4 @@
-package com.mowforth.rhinode.util;
+package com.sprintstack.util;
 
 import java.io.IOException;
 import java.io.StringReader;

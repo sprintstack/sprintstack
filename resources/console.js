@@ -1,4 +1,4 @@
-importClass(com.mowforth.rhinode.dispatch.Dispatch);
+importClass(com.sprintstack.dispatch.Dispatch);
 
 var util = require('util');
 

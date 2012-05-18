@@ -1,4 +1,4 @@
-package com.mowforth.rhinode.core;
+package com.sprintstack.core;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

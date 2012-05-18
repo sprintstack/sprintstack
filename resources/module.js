@@ -1,4 +1,4 @@
-importClass(com.mowforth.rhinode.ModuleLoader);
+importClass(com.sprintstack.ModuleLoader);
 
 var require = function() {
   var id = arguments[0];

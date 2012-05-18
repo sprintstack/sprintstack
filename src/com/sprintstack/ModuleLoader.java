@@ -1,4 +1,4 @@
-package com.mowforth.rhinode;
+package com.sprintstack;
 
 import java.nio.file.Files;
 import java.nio.file.FileSystem;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.io.IOException;
 import org.json.simple.JSONObject;
 
-import com.mowforth.rhinode.util.JSON;
+import com.sprintstack.util.JSON;
 
 public class ModuleLoader {
 
@@ -79,7 +79,7 @@ public class ModuleLoader {
     }
 
     private static Path getJarPath() {
-        return Paths.get(Rhinode.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        return Paths.get(SprintStack.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 
     public static String loadFile(String location) {

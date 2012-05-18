@@ -3,7 +3,7 @@ importClass(Packages.akka.actor.UntypedActorFactory);
 importClass(Packages.akka.actor.UntypedActor);
 importClass(Packages.akka.actor.Props);
 importClass(Packages.akka.routing.RoundRobinRouter);
-importClass(com.mowforth.rhinode.dispatch.Dispatch);
+importClass(com.sprintstack.dispatch.Dispatch);
 
 var actorFactory = function(handler) {
   return new JavaAdapter(UntypedActorFactory, {create: function() {
