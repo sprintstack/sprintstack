@@ -5,7 +5,7 @@ var DNS = function() {
   this.resolve = function(domain, rrtype, callback) {
     return new future(function() {
       return IDNS.lookup(domain, rrtype);
-    }, function(err, result) {
+    }).effect(function(err, result) {
       var data = []; var record = null;
       while ((record = result.next()) != null) {
         data.push(record);
