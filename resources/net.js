@@ -1,6 +1,7 @@
 importClass(java.net.InetSocketAddress);
 importClass(java.util.concurrent.CopyOnWriteArraySet);
 importClass(java.util.concurrent.Executor);
+importClass(java.util.concurrent.Executors);
 importClass(Packages.org.jboss.netty.bootstrap.ServerBootstrap);
 importClass(Packages.org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory);
 importClass(Packages.org.jboss.netty.channel.ChannelFutureListener);
@@ -32,7 +33,6 @@ var Pipeline = function(connectionListener) {
 Exec = function() {
   return new Executor({
   execute: function(fn) {
-    console.log(fn.class)
     new future(function() {
       fn.run();
     })
@@ -79,8 +79,6 @@ var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
     handlers: new CopyOnWriteArraySet(),
     channelOpen: function(ctx, e) {
-      var s = new socket(ctx, e, this.handlers);
-      connectionListener(s);
     },
     channelConnected: function(ctx, e) {
     },
@@ -89,6 +87,8 @@ var ServerHandler = function(connectionListener) {
     channelClosed: function(ctx, e) {
     },
     messageReceived: function(ctx, e) {
+      var s = new socket(ctx, e, this.handlers);
+      connectionListener(s);
     },
     exceptionCaught: function(ctx, e) {
     }
@@ -102,7 +102,7 @@ var Server = function(connectionListener) {
   this.listen = function(port, cb) {
     new future(function() {
       internalAddress = new InetSocketAddress(port);
-      var factory = new NioServerSocketChannelFactory(Exec(),
+      var factory = new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(),
                                                       Exec());
       var bootstrap = new ServerBootstrap(factory);
 
