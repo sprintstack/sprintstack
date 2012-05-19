@@ -9,9 +9,11 @@ importClass(Packages.akka.dispatch.Recover);
 importClass(Packages.akka.util.Duration);
 importClass(java.util.concurrent.Callable);
 
+var dispatcher = Dispatch.getSystem().dispatcher();
+
 var createFuture = function(work, cb) {
   var c = new JavaAdapter(Callable, {call: work});
-  var future = Futures.future(c, Dispatch.getSystem().dispatcher());
+  var future = Futures.future(c, dispatcher);
   return future;
 }
 
@@ -78,8 +80,13 @@ future.compose = function() {
     return f.future;
   });
 
-  var composed = Futures.sequence(futures, Dispatch.getSystem().dispatcher());
-  return new future(composed);
+  var composed = Futures.sequence(futures, dispatcher);
+  return new future(composed).then(function(v) {
+    var a = v.toArray().map(function(x) {
+      return x;
+    });
+    return a;
+  });
 }
 
 module.exports = future;
