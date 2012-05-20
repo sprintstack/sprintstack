@@ -12,7 +12,6 @@ import akka.dispatch.Futures;
 import akka.japi.Function;
 import akka.util.Duration;
 import akka.util.Timeout;
-import java.lang.Runnable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
