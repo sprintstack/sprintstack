@@ -1,4 +1,5 @@
 importClass(java.lang.Runtime);
+importClass(java.lang.System);
 importClass(java.lang.management.ManagementFactory);
 
 var os = require('os');
@@ -12,7 +13,7 @@ var Process = function() {
 
   this.arch = os.arch();
 
-  this.pid = java.lang.System.getProperty("sprintstack.pid");
+  this.pid = System.getProperty("sprintstack.pid");
 
   this.nextTick = function(callback) {
     return new future(callback);
@@ -20,6 +21,14 @@ var Process = function() {
 
   this.uptime = function() {
     return mx.getUptime();
+  }
+
+  this.getgid = function() {
+    return System.getProperty("sprintstack.gid");
+  }
+
+  this.getuid = function() {
+    return System.getProperty("sprintstack.uid");
   }
 
   this.memoryUsage = function() {
