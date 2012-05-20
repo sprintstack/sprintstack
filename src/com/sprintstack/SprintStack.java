@@ -14,6 +14,8 @@ public class SprintStack {
             Main.setBootstrap(ModuleLoader.require("module"));
             Main.main(args);
         }
+
+        if (Dispatch.getAwait()) Dispatch.getSystem().awaitTermination();
         System.exit(0);
     }
 

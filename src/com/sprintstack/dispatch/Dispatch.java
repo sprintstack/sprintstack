@@ -15,20 +15,31 @@ import akka.util.Timeout;
 import java.lang.Runnable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dispatch {
 
     private static ActorSystem system;
+    private static AtomicBoolean await;
 
     public static void setupSystem() {
         if (system == null) {
+            await = new AtomicBoolean(false);
             system = ActorSystem.create("SprintStackMaster");
-            system.registerOnTermination(new Runnable() {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
                     public void run() {
-                        System.out.println("System shutdown.");
+                        system.shutdown();
                     }
-                });
+            });
         }
+    }
+
+    public static void setAwait() {
+        await.set(true);
+    }
+
+    public static boolean getAwait() {
+        return await.get();
     }
 
     public static ActorSystem getSystem() {
