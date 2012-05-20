@@ -1,6 +1,8 @@
 importClass(java.net.InetSocketAddress);
 importClass(java.util.concurrent.ConcurrentHashMap);
 importClass(java.util.concurrent.Executors);
+importClass(java.util.concurrent.TimeUnit);
+importClass(com.sprintstack.dispatch.Dispatch);
 importClass(Packages.org.jboss.netty.bootstrap.ServerBootstrap);
 importClass(Packages.org.jboss.netty.buffer.ChannelBuffers);
 importClass(Packages.org.jboss.netty.channel.Channels);
@@ -143,6 +145,7 @@ var ServerHandler = function(connectionListener) {
 
 
 var Server = function(connectionListener) {
+  Dispatch.setAwait();
 
   var internalAddress = null;
 
