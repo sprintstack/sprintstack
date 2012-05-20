@@ -3,11 +3,18 @@
 CXD=`dirname "$0"`
 MODPATHS=/usr/local/lib/node_modules/npm/node_modules
 
+PID=$$
+PSGID=`ps -p $PID -o gid --no-headers`
+PSSUID=`ps -p $PID -o uid --no-headers`
+
+GID=${PSGID//[[:space:]]}
+SUID=${PSSUID//[[:space:]]}
+
 if [ -a /usr/bin/rlwrap ]; then
     RLWRAP=rlwrap
 else
     echo 'You might want to install "rlwrap" for a more pleasant REPL experience.'
 fi
 
-exec $RLWRAP java -XX:+UseParallelGC -Dconfig.file=$CXD/../etc/application.conf -Dsprintstack.modpaths=$MODPATHS -Dsprintstack.pid=$$ -jar $CXD/../dist/sprintstack-standalone.jar "$@"
+exec $RLWRAP java -XX:+UseParallelGC -Dconfig.file=$CXD/../etc/application.conf -Dsprintstack.modpaths=$MODPATHS -Dsprintstack.uid=$SUID -Dsprintstack.gid=$GID -Dsprintstack.pid=$$ -jar $CXD/../dist/sprintstack-standalone.jar "$@"
 
