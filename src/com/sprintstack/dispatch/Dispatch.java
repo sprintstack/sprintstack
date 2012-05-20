@@ -19,11 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Dispatch {
 
     private static ActorSystem system;
-    private static AtomicBoolean await;
+    private static AtomicBoolean await = new AtomicBoolean(false);;
 
-    public static void setupSystem() {
+    public static ActorSystem getSystem() {
         if (system == null) {
-            await = new AtomicBoolean(false);
             system = ActorSystem.create("SprintStackMaster");
             Runtime.getRuntime().addShutdownHook(new Thread() {
                     public void run() {
@@ -31,6 +30,7 @@ public class Dispatch {
                     }
             });
         }
+        return system;
     }
 
     public static void setAwait() {
@@ -39,10 +39,6 @@ public class Dispatch {
 
     public static boolean getAwait() {
         return await.get();
-    }
-
-    public static ActorSystem getSystem() {
-        return system;
     }
 
     public static ActorRef newEventHandler() {

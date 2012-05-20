@@ -11,7 +11,7 @@ var actorFactory = function(handler) {
   }});
 };
 
-var actor = function(fn) {
+var actor = function(fn,options) {
   var base = {
     preStart: function() {
       this.handlers = [fn];
@@ -40,8 +40,7 @@ var actor = function(fn) {
   };
 
   var af = actorFactory(base);
-  if (arguments.length == 2) {
-    var options = arguments[1];
+  if (options != null) {
     actor = Dispatch.getSystem().actorOf(new Props().withCreator(af).withRouter(new RoundRobinRouter(options["n"])));
   } else {
     actor = Dispatch.getSystem().actorOf(new Props().withCreator(af));
