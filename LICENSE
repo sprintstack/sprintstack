@@ -12,8 +12,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ====
 
-The above applies to all portions of SprintStack code that do not constitute functional components of externally maintained dependencies, whose licenses are declared below.
-
-
-- Rhino
+The above applies to all portions of SprintStack code that do not constitute functional components of externally maintained dependencies, whose licenses are declared in the 'licenses' directory. They follow the format LICENSE.{library_name}.txt.
 
