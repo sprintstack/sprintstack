@@ -23,7 +23,7 @@ importClass(Packages.org.jboss.netty.handler.codec.http.DefaultHttpResponse);
 importClass(Packages.org.jboss.netty.handler.ssl.SslHandler);
 
 var ks = require('keystore');
-
+var match = require('match');
 
 var Pipeline = function(connectionListener, context) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
@@ -165,16 +165,38 @@ var Server = function() {
 
   var internalAddress = null;
 
-  this.listen = function(port, cb) {
+  this.listen = function() {
+    var port, host, cb;
+
+    var args = match(
+      [[Number], function(p) {
+        port = p;
+      }],
+      [[Number, String], function(p, h) {
+        [port, host] = [p, h];
+      }],
+      [[Number, Function], function(p, c) {
+        [port, cb] = [p, c];
+      }],
+      [[Number, String, Function], function(p, h, c) {
+        [port, host, cb] = [p, h, c]
+      }]
+    );
+
+    if (!host) host = "0.0.0.0";
+    if (!cb) cb = function() {};
+
+    args.call(this, Array.prototype.slice.call(arguments))
+
     new future(function() {
-      internalAddress = new InetSocketAddress(port);
+      var internalAddress = new InetSocketAddress(host, port);
       var factory = new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(),
                                                       Executors.newCachedThreadPool(), 1);
       var bootstrap = new ServerBootstrap(factory);
 
       bootstrap.setPipelineFactory(Pipeline(connectionListener, context));
       bootstrap.bind(internalAddress);
-    }, cb).recover(function(e) {
+    }).effect(cb).recover(function(e) {
       java.lang.System.out.println(e)
     });
   };
