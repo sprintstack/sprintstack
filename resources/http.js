@@ -20,11 +20,20 @@ importClass(Packages.org.jboss.netty.handler.codec.http.HttpResponseStatus);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpVersion);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpRequest);
 importClass(Packages.org.jboss.netty.handler.codec.http.DefaultHttpResponse);
+importClass(Packages.org.jboss.netty.handler.ssl.SslHandler);
+
+var ks = require('keystore');
 
 
-var Pipeline = function(connectionListener) {
+var Pipeline = function(connectionListener, context) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
     var pipeline = Channels.pipeline();
+
+    if (context != null) {
+      var engine = context.createSSLEngine();
+      engine.setUseClientMode(false);
+      pipeline.addLast("ssl", new SslHandler(engine));
+    }
 
     pipeline.addLast("decoder", new HttpRequestDecoder());
     pipeline.addLast("aggregator", new HttpChunkAggregator(65536));
@@ -143,7 +152,15 @@ var ServerHandler = function(connectionListener) {
 };
 
 
-var Server = function(connectionListener) {
+var Server = function() {
+  if (arguments[0].constructor === Function) {
+    var connectionListener = arguments[0];
+  } else {
+    var options = arguments[0];
+    if (options['keystore'] != null) var context = ks.setup(options['keystore']);
+    var connectionListener = arguments[1];
+  }
+
   Dispatch.setAwait();
 
   var internalAddress = null;
@@ -155,7 +172,7 @@ var Server = function(connectionListener) {
                                                       Executors.newCachedThreadPool(), 1);
       var bootstrap = new ServerBootstrap(factory);
 
-      bootstrap.setPipelineFactory(Pipeline(connectionListener));
+      bootstrap.setPipelineFactory(Pipeline(connectionListener, context));
       bootstrap.bind(internalAddress);
     }, cb).recover(function(e) {
       java.lang.System.out.println(e)
@@ -164,6 +181,6 @@ var Server = function(connectionListener) {
 
 }
 
-exports.createServer = function(listener) {
-  return new Server(listener);
+exports.createServer = function(options, fn) {
+  return new Server(options, fn);
 };
