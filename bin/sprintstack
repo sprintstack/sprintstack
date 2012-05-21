@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 CXD=`dirname "$0"`
-MODPATHS=/usr/local/lib/node_modules/npm/node_modules
+BASE=$CXD/../
+CORE_PATH=$BASE/dist/sprintstack.jar:$BASE/lib/*
 
 PID=$$
 PSGID=`ps -p $PID -o gid --no-headers`
@@ -16,5 +17,5 @@ else
     echo 'You might want to install "rlwrap" for a more pleasant REPL experience.'
 fi
 
-exec $RLWRAP java -XX:+UseParallelGC -Dconfig.file=$CXD/../etc/application.conf -Dsprintstack.modpaths=$MODPATHS -Dsprintstack.uid=$SUID -Dsprintstack.gid=$GID -Dsprintstack.pid=$$ -jar $CXD/../dist/sprintstack-standalone.jar "$@"
+exec $RLWRAP java -classpath $CORE_PATH -XX:+UseParallelGC -Dconfig.file=$CXD/../etc/application.conf -Dsprintstack.uid=$SUID -Dsprintstack.gid=$GID -Dsprintstack.pid=$$ com.sprintstack.SprintStack "$@"
 
