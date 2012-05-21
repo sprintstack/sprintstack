@@ -20,9 +20,9 @@ var Path = function() {
   }
 
   this.exists = function(p, callback) {
-    async(function() {
+    return new future(function() {
       return IPath.exists(p);
-    }, function(err, result) {
+    }).effect(function(err, result) {
       callback(result);
     });
   }
