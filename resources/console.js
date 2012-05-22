@@ -26,7 +26,6 @@ var Console = function() {
   logger = new Logger();
 
   timer = new actor(function(msg) {
-    if (!this.timestamps) this.timestamps = {};
     if (msg.constructor === String) {
       this.timestamps[msg] = new Date().getTime();
     } else {
@@ -37,7 +36,9 @@ var Console = function() {
         logger.out(msg.end + util.format(": %dms", endtime - id));
       }
     }
-  });
+  }, {prestart: function() {
+    this.timestamps = {};
+  }});
 
   this.log = function() {
     var str = util.format.apply(null, arguments);
