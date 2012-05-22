@@ -1,6 +1,7 @@
 importClass(java.net.InetSocketAddress);
 importClass(java.util.concurrent.ConcurrentHashMap);
 importClass(java.util.concurrent.Executors);
+importClass(java.util.concurrent.atomic.AtomicBoolean);
 importClass(com.sprintstack.dispatch.Dispatch);
 importClass(Packages.org.jboss.netty.bootstrap.ServerBootstrap);
 importClass(Packages.org.jboss.netty.buffer.ChannelBuffers);
@@ -166,7 +167,6 @@ var ServerResponse = function(ctx, e) {
 
 };
 
-importClass(java.util.concurrent.atomic.AtomicBoolean);
 
 var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
