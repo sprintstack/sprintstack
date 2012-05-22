@@ -41,8 +41,4 @@ public class Dispatch {
         return await.get();
     }
 
-    public static ActorRef newEventHandler() {
-        return system.actorOf(new Props(EventActor.class));
-    }
-
 }
