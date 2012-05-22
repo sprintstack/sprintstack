@@ -13,6 +13,5 @@ public class SprintStack {
         System.exit(0);
     }
 
-
-
 }
+
