@@ -16,6 +16,7 @@ var actor = function(fn,options) {
     preStart: function() {
       this.handlers = [fn];
       this.handler = fn;
+      if (options && options.prestart) options.prestart.call(this);
     },
     reply: function(msg) {
       this.getSender().tell(msg);
@@ -36,11 +37,14 @@ var actor = function(fn,options) {
         h = this.handlers[this.handlers.length-1];
         h.call(this, msg);
       }
+    },
+    postStop: function() {
+      if (options && options.shutdown) options.shutdown.call(this);
     }
   };
 
   var af = actorFactory(base);
-  if (options != null) {
+  if (options && options["n"]) {
     actor = Dispatch.getSystem().actorOf(new Props().withCreator(af).withRouter(new RoundRobinRouter(options["n"])));
   } else {
     actor = Dispatch.getSystem().actorOf(new Props().withCreator(af));
