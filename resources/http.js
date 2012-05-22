@@ -25,20 +25,23 @@ importClass(Packages.org.jboss.netty.handler.ssl.SslHandler);
 var ks = require('keystore');
 var match = require('match');
 
-var Pipeline = function(connectionListener, context) {
+var Pipeline = function(connectionListener, options) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
     var pipeline = Channels.pipeline();
 
-    if (context != null) {
-      var engine = context.createSSLEngine();
+    if (options['context'] != null) {
+      var engine = options['context'].createSSLEngine();
       engine.setUseClientMode(false);
       pipeline.addLast("ssl", new SslHandler(engine));
     }
 
+    var Handler = ServerHandler;
+    if (options['handler'] != null) Handler = options['handler'];
+
     pipeline.addLast("decoder", new HttpRequestDecoder());
     pipeline.addLast("aggregator", new HttpChunkAggregator(65536));
     pipeline.addLast("encoder", new HttpResponseEncoder());
-    pipeline.addLast("handler", ServerHandler(connectionListener));
+    pipeline.addLast("handler", Handler(connectionListener));
     return pipeline;
   }});
 }
@@ -47,7 +50,36 @@ var Pipeline = function(connectionListener, context) {
 var status = {200: HttpResponseStatus.OK};
 
 
-var Request = function(ctx, e) {
+var EmptyServerRequest = function(observers) {
+
+  this.emit = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var msg = args.splice(0,1);
+    var fns = observers.filter(function(e) {
+      return e[0] == msg;
+    }).forEach(function(f) {
+      f[1].apply(null, args);
+    });
+  }
+
+}
+
+
+var ServerRequest = function(ctx, e, observers) {
+
+  this.on = function(msg, fn) {
+    observers.push([msg, fn]);
+  }
+
+  this.emit = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var msg = args.splice(0,1);
+    var fns = observers.filter(function(e) {
+      return e[0] == msg;
+    }).forEach(function(f) {
+      f[1].apply(null, args);
+    });
+  }
 
   this.url = e.getMessage().getUri();
 
@@ -83,22 +115,22 @@ var Request = function(ctx, e) {
 }
 
 
-var Response = function(ctx, e) {
+var ServerResponse = function(ctx, e) {
 
   this.headers = {};
 
   this.statusCode = 0;
 
   this.setHeader = function(name, value) {
-    this.headers.name = value;
+    this.headers[name] = value;
   }
 
   this.getHeader = function(name) {
-    return this.headers.name;
+    return this.headers[name];
   }
 
   this.removeHeader = function(name) {
-    this.headers.name = null;
+    delete this.headers[name];
   }
 
   this.writeHead = function(code, headers) {
@@ -121,8 +153,8 @@ var Response = function(ctx, e) {
   this.end = function(msg) {
     if (msg == null) e.getChannel.close();
     else
-    this.write(msg, function(future) {
-      future.getChannel().close();
+    this.write(msg, function(f) {
+      f.getChannel().close();
     });
   }
 
@@ -134,19 +166,28 @@ var Response = function(ctx, e) {
 
 };
 
+importClass(java.util.concurrent.atomic.AtomicBoolean);
 
 var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
-    listeners: new ConcurrentHashMap(),
-    channelOpen: function(ctx, e) {
-      
+    fired: new AtomicBoolean(false),
+    listeners: [],
+    channelConnected: function(ctx, e) {
+
     },
     messageReceived: function(ctx, e) {
-      var req = new Request(ctx, e);
-      var res = new Response(ctx, e);
-      connectionListener(req, res);
+      req = new ServerRequest(ctx, e, this.listeners);
+      this.res = new ServerResponse(ctx, e);
+      if (!this.fired.getAndSet(true)) connectionListener(req, this.res);
+      req.emit('data', e.getMessage().getContent());
+    },
+    channelClosed: function(ctx, e) {
+      req = new EmptyServerRequest(this.listeners);
+      req.emit('end');
     },
     exceptionCaught: function(ctx, e) {
+      console.log(e);
+      e.getChannel().close();
     }
   });
 };
@@ -158,6 +199,7 @@ var Server = function() {
   } else {
     var options = arguments[0];
     if (options['keystore'] != null) var context = ks.setup(options['keystore']);
+    if (options['handler'] != null) var handler = options['handler'];
     var connectionListener = arguments[1];
   }
 
@@ -194,7 +236,7 @@ var Server = function() {
                                                       Executors.newCachedThreadPool(), 1);
       var bootstrap = new ServerBootstrap(factory);
 
-      bootstrap.setPipelineFactory(Pipeline(connectionListener, context));
+      bootstrap.setPipelineFactory(Pipeline(connectionListener, {'context':context, 'handler':handler}));
       bootstrap.bind(internalAddress);
     }).effect(cb).recover(function(e) {
       java.lang.System.out.println(e)
@@ -206,3 +248,9 @@ var Server = function() {
 exports.createServer = function(options, fn) {
   return new Server(options, fn);
 };
+
+exports.Server = Server;
+exports.Pipeline = Pipeline;
+exports.ServerRequest = ServerRequest;
+exports.ServerResponse = ServerResponse;
+
