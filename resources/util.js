@@ -44,6 +44,10 @@ var Util = function() {
     java.lang.Thread.sleep(ms);
   }
 
+  this.merge = function(obj1, obj2) {
+    for (var key in obj2) obj1[key] = obj2[key];
+  }
+
 };
 
 module.exports = new Util();
