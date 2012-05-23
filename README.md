@@ -26,7 +26,7 @@ to load up a REPL (JLine support has been removed for now; multiline statements 
 
 ### Getting started
 
-Checkout the [wiki](wiki)
+Checkout the [https://github.com/sprintstack/sprintstack/wiki](wiki)
 
 ### Download
 
