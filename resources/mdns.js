@@ -1,6 +1,7 @@
 importClass(javax.jmdns.JmDNS);
 importClass(javax.jmdns.ServiceInfo);
-importClass(javax.jmdns.ServiceListener);
+importClass(javax.jmdns.ServiceTypeListener);
+importClass(Packages.akka.dispatch.Terminate);
 
 function parseEvent(e) {
   var info = e.getInfo();
@@ -38,16 +39,19 @@ var MDNS = function() {
   var responder = new actor(function(msg) {
     if (msg instanceof ServiceInfo) {
       this.responder.registerService(msg);
-    } else if (msg instanceof ServiceListener) {
-      console.log("L")
-    } else {
+    } else if (msg instanceof ServiceTypeListener) {
+      this.responder.addServiceTypeListener(msg);
+    } else if (msg instanceof Terminate) {
+      this.responder.unregisterAllServices();
+    }
+    else {
       if (msg.kill instanceof ServiceInfo) this.responder.unregisterService(msg.kill);
       if (msg.kill instanceof ServiceListener) this.responder.removeServiceListener(msg.kill);
     }
   }, {prestart: function() {
     this.responder = JmDNS.create();
   }, shutdown: function() {
-    this.responder.close();
+    this.responder.unregisterAllServices();
   }});
 
   this.announce = function(type, name, port, description) {
@@ -55,9 +59,8 @@ var MDNS = function() {
     responder.send(info);
     return new MDNSService(responder, info);
   }
-
   this.listen = function(type, add, remove) {
-    var listener = ServiceListener({
+    var listener = new ServiceListener({
       serviceResolved: function(e) {
         add(parseEvent(e));
       },
@@ -65,10 +68,10 @@ var MDNS = function() {
         remove(parseEvent(e));
       }
     });
-    responder.addServiceListener(type, listener);
+    responder.send(listener);
 
     return new MDNSListener(responder, listener);
-  };
+  }
 
 };
 
