@@ -1,5 +1,6 @@
 importClass(java.lang.System);
 importClass(java.lang.Runtime)
+importClass(java.lang.management.ManagementFactory);
 importClass(java.net.NetworkInterface);
 
 var OS = function() {
@@ -19,12 +20,24 @@ var OS = function() {
     return System.getProperty('os.version').toString();
   }
 
+  this.uptime = function() {
+    var uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
+    return uptimeMs / 1000;
+  }
+
   this.freemem = function() {
     return Runtime.getRuntime().freeMemory();
   }
 
   this.totalmem = function() {
     return Runtime.getRuntime().maxMemory();
+  }
+
+  this.cpus = function() {
+    // There is no platform-independent way of querying system
+    // CPU specifics with the JVM; to prevent regular node.js apps
+    // breaking we return an empty array.
+    return [];
   }
 
   this.networkInterfaces = function() {
