@@ -6,7 +6,6 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 import akka.actor.Cancellable;
-import akka.agent.Agent;
 import akka.dispatch.Future;
 import akka.dispatch.Futures;
 import akka.japi.Function;
