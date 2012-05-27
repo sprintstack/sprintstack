@@ -120,7 +120,7 @@ var ServerResponse = function(ctx, e) {
 
   this.headers = {};
 
-  this.statusCode = 0;
+  this.statusCode = 200;
 
   this.setHeader = function(name, value) {
     this.headers[name] = value;
@@ -140,10 +140,10 @@ var ServerResponse = function(ctx, e) {
   }
 
   this.write = function(msg, cb) {
-    this.response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status[this.statusCode]);
-    this.response.setContent(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
-    for (var key in this.headers) this.response.setHeader(key, this.headers[key]);
-    var f = e.getChannel().write(this.response);
+    var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status[this.statusCode]);
+    response.setContent(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
+    for (var key in this.headers) response.setHeader(key, this.headers[key]);
+    var f = e.getChannel().write(response);
     if (cb == null) return f;
     f.addListener(
       new JavaAdapter(ChannelFutureListener, {
@@ -170,15 +170,17 @@ var ServerResponse = function(ctx, e) {
 
 var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
-    fired: new AtomicBoolean(false),
+    fired: false,
     listeners: [],
     channelConnected: function(ctx, e) {
-
     },
     messageReceived: function(ctx, e) {
       req = new ServerRequest(ctx, e, this.listeners);
       this.res = new ServerResponse(ctx, e);
-      if (!this.fired.getAndSet(true)) connectionListener(req, this.res);
+      if (!this.fired) {
+        this.fired = true;
+        connectionListener(req, this.res);
+      }
       req.emit('data', e.getMessage().getContent());
     },
     channelClosed: function(ctx, e) {
@@ -198,8 +200,8 @@ var Server = function() {
     var connectionListener = arguments[0];
   } else {
     var options = arguments[0];
-    if (options['keystore'] != null) var context = ks.setup(options['keystore']);
-    if (options['handler'] != null) var handler = options['handler'];
+    if (options['keystore']) var context = ks.setup(options['keystore']);
+    if (options['handler']) var handler = options['handler'];
     var connectionListener = arguments[1];
   }
 
@@ -228,7 +230,7 @@ var Server = function() {
     if (!host) host = "0.0.0.0";
     if (!cb) cb = function() {};
 
-    args.call(this, Array.prototype.slice.call(arguments))
+    args.call(this, Array.prototype.slice.call(arguments));
 
     new future(function() {
       var internalAddress = new InetSocketAddress(host, port);
@@ -239,7 +241,7 @@ var Server = function() {
       bootstrap.setPipelineFactory(Pipeline(connectionListener, {'context':context, 'handler':handler}));
       bootstrap.bind(internalAddress);
     }).effect(cb).recover(function(e) {
-      java.lang.System.out.println(e)
+      java.lang.System.out.println(e);
     });
   };
 

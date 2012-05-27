@@ -1,77 +1,43 @@
-importClass(javax.jmdns.JmDNS);
-importClass(javax.jmdns.ServiceInfo);
-importClass(javax.jmdns.ServiceTypeListener);
-importClass(Packages.akka.dispatch.Terminate);
+importClass(Packages.org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory)
+importClass(Packages.org.jboss.netty.channel.Channels);
+importClass(Packages.org.jboss.netty.buffer.ChannelBuffer);
+importClass(Packages.org.jboss.netty.channel.SimpleChannelUpstreamHandler);
+importClass(java.net.InetSocketAddress);
+importClass(java.net.NetworkInterface);
 
-function parseEvent(e) {
-  var info = e.getInfo();
-  var addr = info.getAddresses();
-  var addresses = [];
-  for (var a in addr) addresses.push(a);
-  var description = new java.lang.String(info.getTextBytes()).toString();
-  return {
-    'name': info.getName(),
-    'host': addresses,
-    'port': info.getPort(),
-    'type': info.getType(),
-    'description': description
-  };
-};
-
-var MDNSService = function(responder, service) {
-
-  this.close = function() {
-    responder.send({kill: service});
-  }
-
+var Responder = function() {
+  return new JavaAdapter(SimpleChannelUpstreamHandler, {
+    messageReceived: function(ctx, e) {
+      var msg = e.getMessage();
+      if (msg instanceof ChannelBuffer) new DNSMessage(msg);
+    }
+  });
 }
 
-var MDNSListener = function(responder, listener) {
+var Pipeline = function() {
+  var pipe = Channels.pipeline();
+  pipe.addLast("handler", Responder());
+  return pipe;
+}
 
-  this.stop = function() {
-    responder.send({kill: listener});
-  }
-
-};
+var DNSMessage = function(msg) {
+}
 
 var MDNS = function() {
+  var f = new NioDatagramChannelFactory();
+  var channel = f.newChannel(Pipeline());
+  channel.getConfig().setReuseAddress(true);
+  channel.getConfig().setSendBufferSize(512);
+  channel.getConfig().setReceiveBufferSize(512);
 
-  var responder = new actor(function(msg) {
-    if (msg instanceof ServiceInfo) {
-      this.responder.registerService(msg);
-    } else if (msg instanceof ServiceTypeListener) {
-      this.responder.addServiceTypeListener(msg);
-    } else if (msg instanceof Terminate) {
-      this.responder.unregisterAllServices();
-    }
-    else {
-      if (msg.kill instanceof ServiceInfo) this.responder.unregisterService(msg.kill);
-      if (msg.kill instanceof ServiceListener) this.responder.removeServiceListener(msg.kill);
-    }
-  }, {prestart: function() {
-    this.responder = JmDNS.create();
-  }, shutdown: function() {
-    this.responder.unregisterAllServices();
-  }});
+  var addr = new InetSocketAddress("224.0.0.251", 5353);
+  var future = channel.bind(addr);
+  future.await();
+  if (future.isSuccess()) console.log('bound');
 
-  this.announce = function(type, name, port, description) {
-    var info = ServiceInfo.create(type, name, port, description);
-    responder.send(info);
-    return new MDNSService(responder, info);
-  }
-  this.listen = function(type, add, remove) {
-    var listener = new ServiceListener({
-      serviceResolved: function(e) {
-        add(parseEvent(e));
-      },
-      serviceRemoved: function(e) {
-        remove(parseEvent(e));
-      }
-    });
-    responder.send(listener);
+  var ifaces = NetworkInterface.getNetworkInterfaces();
+  while (ifaces.hasMoreElements()) channel.joinGroup(addr, ifaces.nextElement());
 
-    return new MDNSListener(responder, listener);
-  }
 
 };
 

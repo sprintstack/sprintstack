@@ -17,5 +17,5 @@ else
     echo 'You might want to install "rlwrap" for a more pleasant REPL experience.'
 fi
 
-exec $RLWRAP java -classpath $CORE_PATH -XX:+UseParallelGC -Dconfig.file=$CXD/../etc/application.conf -Dsprintstack.uid=$SUID -Dsprintstack.gid=$GID -Dsprintstack.pid=$$ com.sprintstack.SprintStack "$@"
+exec $RLWRAP java -classpath $CORE_PATH -XX:+UseParallelGC -Dsprintstack.uid=$SUID -Dsprintstack.gid=$GID -Dsprintstack.pid=$$ com.sprintstack.SprintStack "$@"
 
