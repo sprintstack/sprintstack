@@ -26,16 +26,10 @@ to load up a REPL (JLine support has been removed for now; multiline statements 
 
 ### Getting started
 
-Checkout the [wiki](https://github.com/sprintstack/sprintstack/wiki)
-
-### Download
-
-'todo'
-
-You're better off cloning and building from source as it's in a constant state of flux right now... constructive criticism, hate-mail, offers of love, money or patches are all much appreciated.
+Checkout the [wiki](https://github.com/sprintstack/sprintstack/wiki) for more information.
 
 ## License
 
 Copyright (C) 2012 Chris Mowforth
 
-SprintStack is Ddstributed under the MIT license. Various dependencies are distributed under separate licenses. See LICENSE for more.
+SprintStack is Distributed under the MIT license. Various dependencies are distributed under separate licenses. See LICENSE for more.
