@@ -11,6 +11,8 @@ importClass(Packages.org.jboss.netty.channel.ChannelPipelineFactory);
 importClass(Packages.org.jboss.netty.channel.MessageEvent);
 importClass(Packages.org.jboss.netty.channel.SimpleChannelUpstreamHandler);
 importClass(Packages.org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory);
+importClass(Packages.org.jboss.netty.handler.codec.http.CookieDecoder);
+importClass(Packages.org.jboss.netty.handler.codec.http.CookieEncoder);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpChunkAggregator);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpRequestDecoder);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpResponseEncoder);
@@ -107,10 +109,23 @@ var ServerRequest = function(ctx, e, observers) {
 
   this.httpVersion = getVersion();
 
-  this.setEncoding = function(encoding) {
-    if (encoding != null) {
-      
+  this.getCookies = function() {
+    var cstr = e.getMessage().getHeader(HttpHeaders.Names.COOKIE);
+    var cookies = {};
+    if (cstr) {
+      if (!this.cookieDecoder) this.cookieDecoder = new CookieDecoder();
+      var parsed = this.cookieDecoder.decode(cstr).iterator();
+      while (parsed.hasNext()) {
+        var cookie = parsed.next();
+        cookies[cookie.getName()] = cookie.getValue();
+      }
     }
+    return cookies;
+  }
+
+  this.getCookie = function(name) {
+    if (!this.cookies) this.cookies = this.getCookies();
+    return this.cookies[name];
   }
 
 }
@@ -121,6 +136,11 @@ var ServerResponse = function(ctx, e) {
   this.headers = {};
 
   this.statusCode = 200;
+
+  this.setCookie = function(name, value) {
+    if (!this.cookieEncoder) this.cookieEncoder = new CookieEncoder(false);
+    this.cookieEncoder.addCookie(name, value);
+  }
 
   this.setHeader = function(name, value) {
     this.headers[name] = value;
@@ -142,6 +162,7 @@ var ServerResponse = function(ctx, e) {
   this.write = function(msg, cb) {
     var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status[this.statusCode]);
     response.setContent(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
+    if (this.cookieEncoder) response.setHeader(HttpHeaders.Names.SET_COOKIE, this.cookieEncoder.encode());
     for (var key in this.headers) response.setHeader(key, this.headers[key]);
     var f = e.getChannel().write(response);
     if (cb == null) return f;
