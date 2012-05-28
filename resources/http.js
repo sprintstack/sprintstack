@@ -194,6 +194,28 @@ var ServerHandler = function(connectionListener) {
   });
 };
 
+var Exec = function() {
+  return new JavaAdapter(java.util.concurrent.Executor, {
+    execute: function(r) {
+      new future(function() {
+        r.run();
+      });
+    }
+  });
+}
+
+var Boss = function() {
+  var a = new actor(function(msg) {
+    msg.run();
+  });
+
+  return new JavaAdapter(java.util.concurrent.Executor, {
+    execute: function(r) {
+      a.send(r);
+    }
+  })
+}
+
 
 var Server = function() {
   if (arguments[0].constructor === Function) {
@@ -234,8 +256,8 @@ var Server = function() {
 
     new future(function() {
       var internalAddress = new InetSocketAddress(host, port);
-      var factory = new NioServerSocketChannelFactory(Executors.newSingleThreadExecutor(),
-                                                      Executors.newCachedThreadPool(), 1);
+      var factory = new NioServerSocketChannelFactory(Boss(),
+                                                      Exec());
       var bootstrap = new ServerBootstrap(factory);
 
       bootstrap.setPipelineFactory(Pipeline(connectionListener, {'context':context, 'handler':handler}));
