@@ -20,7 +20,6 @@ importClass(Packages.org.jboss.netty.handler.codec.http.HttpHeaders.Names);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpResponseStatus);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpVersion);
 importClass(Packages.org.jboss.netty.handler.codec.http.HttpRequest);
-importClass(Packages.org.jboss.netty.handler.codec.http.DefaultHttpChunk);
 importClass(Packages.org.jboss.netty.handler.codec.http.DefaultHttpResponse);
 importClass(Packages.org.jboss.netty.handler.ssl.SslHandler);
 
@@ -140,39 +139,12 @@ var ServerResponse = function(ctx, e) {
     this.headers = headers;
   }
 
-  this.close = function() {
-    if (this.isChunked) {
-      var listener = new JavaAdapter(ChannelFutureListener , {
-        operationComplete: function(f) {
-          f.getChannel().close();
-        }
-      });
-      e.getChannel().write(DefaultHttpChunk.LAST_CHUNK).addListener(listener);
-    } else
-      e.getChannel().close();
-  }
-
   this.write = function(msg, cb) {
-    var f;
-
-    if (!this.response) {
-      this.response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status[this.statusCode]);
-      for (var key in this.headers) this.response.setHeader(key, this.headers[key]);
-      if (this.headers['Content-Length']) {
-        this.response.setContent(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
-      } else {
-        this.isChunked = true;
-        this.response.setChunked(true);
-      }
-      f = e.getChannel().write(this.response);
-    }
-    
-    if (!this.headers['Content-Length']) {
-      var chunk = new DefaultHttpChunk(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
-      f = e.getChannel().write(chunk);
-    }
-
-    if (!cb) return f;
+    var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status[this.statusCode]);
+    response.setContent(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
+    for (var key in this.headers) response.setHeader(key, this.headers[key]);
+    var f = e.getChannel().write(response);
+    if (cb == null) return f;
     f.addListener(
       new JavaAdapter(ChannelFutureListener, {
         operationComplete: cb
@@ -180,15 +152,10 @@ var ServerResponse = function(ctx, e) {
   }
 
   this.end = function(msg) {
-    if (!msg) this.close();
+    if (msg == null) e.getChannel.close();
     else
     this.write(msg, function(f) {
-      var listener = new JavaAdapter(ChannelFutureListener , {
-        operationComplete: function(f) {
-          f.getChannel().close();
-        }
-      });
-      e.getChannel().write(DefaultHttpChunk.LAST_CHUNK).addListener(listener);
+      f.getChannel().close();
     });
   }
 
