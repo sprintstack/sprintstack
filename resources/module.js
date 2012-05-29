@@ -32,12 +32,14 @@ var console = require('console');
 var timers = require('timers');
 var future = require('future');
 var actor = require('actor');
+var Buffer = require('buffer');
 
 this.console = console;
 this.setTimeout = timers.setTimeout;
 this.setInterval = timers.setInterval;
 this.clearInterval = timers.clearInterval;
 this.clearTimeout = timers.clearTimeout;
+this.buffer = Buffer;
 
 this.alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
 
