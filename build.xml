@@ -19,7 +19,13 @@
     <mkdir dir="${build}"/>
   </target>
 
-  <target name="compile" depends="init">
+  <target name="deps">
+    <subant target="jar">
+      <fileset dir="." includes="*/build.xml"/>
+    </subant>
+  </target>
+
+  <target name="compile" depends="init, deps">
     <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
       <classpath refid="build-classpath"/>
     </javac>
