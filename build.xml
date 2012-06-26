@@ -20,7 +20,7 @@
   </target>
 
   <target name="deps">
-    <subant target="jar">
+    <subant target="copyjar">
       <fileset dir="." includes="*/build.xml"/>
     </subant>
   </target>

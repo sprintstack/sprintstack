@@ -3,9 +3,7 @@
 CXD=`dirname "$0"`
 BASE=$CXD/../
 CORE_PATH=$BASE/dist/sprintstack.jar:$BASE/lib/*
-CORE_PATH=$CORE_PATH:$BASE/rhino/build/rhino1_8R1pre/js.jar
 
-echo $CORE_PATH
 
 PID=$$
 PSGID=`ps -p $PID -o gid --no-headers`
