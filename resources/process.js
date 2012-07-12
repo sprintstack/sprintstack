@@ -46,6 +46,10 @@ var Process = function() {
     java.lang.System.exit(code);
   };
 
+  this.cwd = function() {
+    return System.getProperty("sprintstack.dir");
+  }
+
 };
 
 module.exports = new Process();

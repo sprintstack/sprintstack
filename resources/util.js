@@ -48,6 +48,8 @@ var Util = function() {
     for (var key in obj2) obj1[key] = obj2[key];
   }
 
+  this.deprecate = function(fn, msg) {}
+
 };
 
 module.exports = new Util();
