@@ -1,5 +1,5 @@
-var corePath = com.sprintstack.Environment.corePath();
-nativeRequire.paths.push(corePath);
+var __corePath = com.sprintstack.Environment.corePath();
+
 
 var loadFile = function(path) {
   var _files = java.nio.file.Files;
@@ -8,24 +8,33 @@ var loadFile = function(path) {
   return new java.lang.String(bytes).toString();
 }
 
+
+if (typeof(module) !== "undefined") {
+  var __filename = java.nio.file.Paths.get(new java.net.URI(module.uri));
+  var __dirname = java.nio.file.Paths.get(__filename).getParent();
+}
+
+
 var require = function(id) {
   var _paths = java.nio.file.Paths;
   var _files = java.nio.file.Files;
+  var _current = (__dirname || java.lang.System.getProperty("sprintstack.dir"));
 
-  var path = _paths.get(id);
 
   // Look for core module
-  var coreModPath = _paths.get(corePath + '/' + id + '.js');
-  if (_files.exists(coreModPath))
-    return nativeRequire(id + '.js')
+  var coreModPath = _paths.get(__corePath + '/' + id + '.js');
+
+  if (_files.exists(coreModPath)) {
+    return nativeRequire('./' + _paths.get(_current).relativize(coreModPath));
+  }
 
   // Pull in a relative path
   if (id.indexOf('.') == 0)
     return nativeRequire(id);
 
   // Look for a node_modules folder containing 'id'
-  if (module) {
-    var moduri = new java.net.URI(module.uri);
+  if (typeof(module) !== "undefined") {
+    var moduri = new java.net.URI(__dirname);
     var npmPath = _paths.get(moduri).getParent();
     while (!_files.isDirectory(npmPath.resolve('node_modules/' + id))) {
       if (npmPath.getParent() == null) break;
@@ -48,6 +57,7 @@ var require = function(id) {
   }
 }
 
+require.paths = nativeRequire.paths;
 
 global = this;
 

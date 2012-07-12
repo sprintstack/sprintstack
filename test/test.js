@@ -1,4 +1,4 @@
-var wru = require('./wru');
+var wru = require('./wru.js');
 
 wru.test({
     name: "Hello wru!",
