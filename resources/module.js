@@ -29,7 +29,11 @@ var require = function(id) {
 
   // Pull in a relative path
   if (id.indexOf('.') == 0) {
-    return nativeRequire(id);      
+    var rel = _paths.get(id);
+    if (_files.exists(rel))
+      return nativeRequire(id);
+    else
+      return nativeRequire(id + '.js')
   }
 
   // Look for a node_modules folder containing 'id'
@@ -47,7 +51,6 @@ var require = function(id) {
     var packageJson = JSON.parse(loadFile(packageJsonPath));
 
     if (packageJson.main) {
-      print(packageJson.main)
       var entryPoint = packageJsonPath.getParent().resolve(packageJson.main).normalize();
       if (!_files.exists(entryPoint))
         entryPoint = packageJsonPath.getParent().resolve(packageJson.main + '.js').normalize();
