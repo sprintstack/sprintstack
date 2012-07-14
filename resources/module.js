@@ -18,41 +18,41 @@ if (typeof(module) !== "undefined") {
 var require = function(id) {
   var _paths = java.nio.file.Paths;
   var _files = java.nio.file.Files;
-  var _current = (__dirname || java.lang.System.getProperty("sprintstack.dir"));
-
+  var _current = _paths.get(__dirname || java.lang.System.getProperty("sprintstack.dir"));
 
   // Look for core module
   var coreModPath = _paths.get(__corePath + '/' + id + '.js');
 
   if (_files.exists(coreModPath)) {
-    return nativeRequire('./' + _paths.get(_current).relativize(coreModPath));
+    return nativeRequire('./' + _current.relativize(coreModPath));
   }
 
   // Pull in a relative path
-  if (id.indexOf('.') == 0)
-    return nativeRequire(id);
+  if (id.indexOf('.') == 0) {
+    return nativeRequire(id);      
+  }
 
   // Look for a node_modules folder containing 'id'
-  if (typeof(module) !== "undefined") {
-    var moduri = new java.net.URI(__dirname);
-    var npmPath = _paths.get(moduri).getParent();
-    while (!_files.isDirectory(npmPath.resolve('node_modules/' + id))) {
-      if (npmPath.getParent() == null) break;
-      npmPath = npmPath.getParent();
-    }
+  var npmPath = _current;
+  while (!_files.isDirectory(npmPath.resolve('node_modules/' + id))) {
+    if (npmPath.getParent() == null) break;
+    npmPath = npmPath.getParent();
+  }
 
-    // If we've not fully ascended the FS tree,
-    // assume we've found the npm module
-    if (npmPath.getParent()) {
-      var packageJsonPath = npmPath.resolve('node_modules/' + id + '/package.json');
-      var packageJson = JSON.parse(loadFile(packageJsonPath));
 
-      if (packageJson.main) {
-        var thisMod = _paths.get(moduri).getParent();
-        var entryPoint = packageJsonPath.getParent().resolve(packageJson.main).normalize()
-        var relative = './' + thisMod.relativize(entryPoint);
-        return nativeRequire(relative)
-      }
+  // If we've not fully ascended the FS tree,
+  // assume we've found the npm module
+  if (npmPath.getParent()) {
+    var packageJsonPath = npmPath.resolve('node_modules/' + id + '/package.json');
+    var packageJson = JSON.parse(loadFile(packageJsonPath));
+
+    if (packageJson.main) {
+      print(packageJson.main)
+      var entryPoint = packageJsonPath.getParent().resolve(packageJson.main).normalize();
+      if (!_files.exists(entryPoint))
+        entryPoint = packageJsonPath.getParent().resolve(packageJson.main + '.js').normalize();
+      var relative = './' + _current.relativize(entryPoint);
+      return nativeRequire(relative)
     }
   }
 }
