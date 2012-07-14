@@ -1,10 +1,8 @@
-importClass(com.sprintstack.core.IDNS);
-
 var DNS = function() {
 
   this.resolve = function(domain, rrtype, callback) {
     return new future(function() {
-      return IDNS.lookup(domain, rrtype);
+      return com.sprintstack.core.IDNS.lookup(domain, rrtype);
     }).effect(function(err, result) {
       var data = []; var record = null;
       while ((record = result.next()) != null) {
