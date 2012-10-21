@@ -1,12 +1,4 @@
-importClass(Packages.akka.actor.Actors);
-importClass(com.sprintstack.dispatch.Dispatch);
-importClass(com.sprintstack.dispatch.Event);
-importClass(com.sprintstack.dispatch.EventHandler);
-importClass(com.sprintstack.dispatch.IFunction);
-
 var EventEmitter = function() {
-
-  var actor = Dispatch.newEventHandler();
 
   this.on = function(event, listener) {
     var work = new JavaAdapter(IFunction, {apply: listener});
