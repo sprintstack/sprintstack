@@ -50,6 +50,8 @@ var Process = function() {
     return System.getProperty("sprintstack.dir");
   }
 
+  this.env = {}
+
 };
 
 module.exports = new Process();

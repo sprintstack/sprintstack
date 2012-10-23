@@ -22,7 +22,6 @@ var Logger = function() {
 }
 
 var Console = function() {
-
   logger = new Logger();
 
   timer = new actor(function(msg) {

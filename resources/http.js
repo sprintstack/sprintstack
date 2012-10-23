@@ -68,6 +68,35 @@ var EmptyServerRequest = function(observers) {
 }
 
 
+var IncomingMessage = function(socket) {
+  this.socket = socket;
+  this.connection = socket;
+
+  this.httpVersion = null;
+  this.complete = false;
+  this.headers = {}
+  ;
+  this.trailers = {}
+  ;
+
+  this.readable = true;
+
+  this._paused = false;
+  this._pendings = [];
+
+  this._endEmitted = false;
+
+  // request (server) only
+  this.url = '';
+
+  this.method = null;
+
+  // response (client) only
+  this.statusCode = null;
+  this.client = this.socket;
+}
+
+
 var ServerRequest = function(ctx, e, observers) {
 
   this.on = function(msg, fn) {
@@ -296,6 +325,7 @@ exports.createServer = function(options, fn) {
 
 exports.Server = Server;
 exports.Pipeline = Pipeline;
+exports.IncomingMessage = IncomingMessage;
 exports.ServerRequest = ServerRequest;
 exports.ServerResponse = ServerResponse;
 

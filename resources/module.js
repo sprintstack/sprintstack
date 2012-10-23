@@ -16,6 +16,7 @@ if (typeof(module) !== "undefined") {
 
 
 var require = function(id) {
+  var req = null;
   var _paths = java.nio.file.Paths;
   var _files = java.nio.file.Files;
   var _current = _paths.get(__dirname || java.lang.System.getProperty("sprintstack.dir"));
@@ -24,16 +25,21 @@ var require = function(id) {
   var coreModPath = _paths.get(__corePath + '/' + id + '.js');
 
   if (_files.exists(coreModPath)) {
-    return nativeRequire('./' + _current.relativize(coreModPath));
+    req = nativeRequire('./' + _current.relativize(coreModPath));
   }
 
   // Pull in a relative path
   if (id.indexOf('.') == 0) {
-    var rel = _paths.get(id);
-    if (_files.exists(rel))
-      return nativeRequire(id);
-    else
-      return nativeRequire(id + '.js')
+    var rel = _paths.get(__dirname + '/' + id);
+
+    if (_files.exists(rel)){
+      if (_files.isDirectory(rel)) {
+        req = nativeRequire(id + '/index.js');
+      } else {
+        req = nativeRequire(id);
+      }      
+    } else
+      req = nativeRequire(id + '.js')
   }
 
   // Look for a node_modules folder containing 'id'
@@ -55,9 +61,16 @@ var require = function(id) {
       if (!_files.exists(entryPoint))
         entryPoint = packageJsonPath.getParent().resolve(packageJson.main + '.js').normalize();
       var relative = './' + _current.relativize(entryPoint);
-      return nativeRequire(relative)
+      req = nativeRequire(relative)
     }
   }
+
+  if (req != null) req.dir = __dirname;
+
+  print(id)
+//  print(__filename)
+
+  return req;
 }
 
 require.paths = nativeRequire.paths;
@@ -67,7 +80,6 @@ global = this;
 var console = require('console');
 var timers = require('timers');
 var future = require('future');
-var actor = require('actor');
 var process = require('process');
 
 this.console = console;
