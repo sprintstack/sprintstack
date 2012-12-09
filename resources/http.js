@@ -2,7 +2,7 @@ importClass(java.net.InetSocketAddress);
 importClass(java.util.concurrent.ConcurrentHashMap);
 importClass(java.util.concurrent.Executors);
 importClass(java.util.concurrent.atomic.AtomicBoolean);
-importClass(com.sprintstack.dispatch.Dispatch);
+importClass(Packages.org.fusesource.hawtdispatch.Dispatch);
 importClass(Packages.org.jboss.netty.bootstrap.ServerBootstrap);
 importClass(Packages.org.jboss.netty.buffer.ChannelBuffers);
 importClass(Packages.org.jboss.netty.channel.Channels);
@@ -244,28 +244,6 @@ var ServerHandler = function(connectionListener) {
   });
 };
 
-var Exec = function() {
-  return new JavaAdapter(java.util.concurrent.Executor, {
-    execute: function(r) {
-      new future(function() {
-        r.run();
-      });
-    }
-  });
-}
-
-var Boss = function() {
-  var a = new actor(function(msg) {
-    msg.run();
-  });
-
-  return new JavaAdapter(java.util.concurrent.Executor, {
-    execute: function(r) {
-      a.send(r);
-    }
-  })
-}
-
 
 var Server = function() {
   if (arguments[0].constructor === Function) {
@@ -277,7 +255,8 @@ var Server = function() {
     var connectionListener = arguments[1];
   }
 
-  Dispatch.setAwait();
+
+//  Dispatch.setAwait();
 
   var internalAddress = null;
 
@@ -306,13 +285,13 @@ var Server = function() {
 
     new future(function() {
       var internalAddress = new InetSocketAddress(host, port);
-      var factory = new NioServerSocketChannelFactory(Boss(),
-                                                      Exec());
+      var factory = new NioServerSocketChannelFactory(Dispatch.createQueue(),
+                                                      Dispatch.getGlobalQueue());
       var bootstrap = new ServerBootstrap(factory);
 
       bootstrap.setPipelineFactory(Pipeline(connectionListener, {'context':context, 'handler':handler}));
       bootstrap.bind(internalAddress);
-    }).effect(cb).recover(function(e) {
+    }).then(cb).then(function(e) {
       java.lang.System.out.println(e);
     });
   };
