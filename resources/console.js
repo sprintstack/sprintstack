@@ -29,7 +29,7 @@ var Console = function() {
     var str = util.format.apply(null, arguments);
     logger.out(str);
   }
-
+  
   this.info = this.log;
 
   this.warn = function() {

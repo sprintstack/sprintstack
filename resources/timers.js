@@ -1,4 +1,4 @@
-importClass(Packages.akka.util.Duration);
+/*importClass(Packages.akka.util.Duration);
 importClass(com.sprintstack.dispatch.Dispatch);
 importClass(java.lang.Runnable);
 importClass(java.util.concurrent.TimeUnit);
@@ -37,6 +37,29 @@ var Timers = function() {
     intervalId.cancel();
   }
 
-}
+}*/
+
+importClass(java.util.concurrent.TimeUnit);
+
+var Timers = function() {
+
+  var timer = com.sprintstack.Environment.getSystemTimer();
+
+  this.setTimeout = function(callback, delay) {
+    return timer.newTimeout(callback, delay, TimeUnit.MILLISECONDS);
+  }
+
+  this.clearTimeout = function(timeout) {
+    timeout.cancel();
+  }
+
+  this.setInterval = function(callback, delay) {
+    
+  }
+
+  this.clearInterval = function(intervalId) {
+  }
+
+};
 
 module.exports = new Timers();

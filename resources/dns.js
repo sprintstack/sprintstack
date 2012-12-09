@@ -3,7 +3,9 @@ var DNS = function() {
   this.resolve = function(domain, rrtype, callback) {
     return new future(function() {
       return com.sprintstack.core.IDNS.lookup(domain, rrtype);
-    }).effect(function(err, result) {
+    }).then(function(result) {
+      // TODO: split value and possible err
+      
       var data = []; var record = null;
       while ((record = result.next()) != null) {
         data.push(record);
