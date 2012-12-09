@@ -52,12 +52,21 @@
     <ivy:retrieve />
   </target>
 
+  <target name="fetch-submodules">
+    <exec executable="git">
+      <arg line="submodule init"/>
+    </exec>
+    <exec executable="git">
+      <arg line="submodule update"/>
+    </exec>
+  </target>
+
   <target name="init" depends="fetch-deps">
     <tstamp/>
     <mkdir dir="${build}"/>
   </target>
 
-  <target name="rhino">
+  <target name="rhino" depends="fetch-submodules">
     <ant dir="rhino" target="jar" inheritAll="false">
       <property name="jarfile" value="${lib}/js.jar"/>
     </ant>
