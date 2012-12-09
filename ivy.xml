@@ -1,0 +1,14 @@
+<ivy-module version="2.0">
+    <info organisation="com.sprintstack" module="sprintstack"/>
+    <dependencies>
+      <dependency org="org.fusesource.hawtdispatch"
+                  name="hawtdispatch"
+                  rev="1.11"/>
+      <dependency org="org.jboss.netty"
+                  name="netty"
+                  rev="3.2.7.Final"/>
+      <dependency org="net.sf.jopt-simple"
+                  name="jopt-simple"
+                  rev="4.3"/>
+    </dependencies>
+</ivy-module>
