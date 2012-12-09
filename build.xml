@@ -1,4 +1,4 @@
-<project name="SprintStack" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="SprintStack" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
   <description>
     Distributed + Evented I/O for Rhino
   </description>
