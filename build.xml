@@ -47,18 +47,19 @@
   </target>
 
   <target name="fetch-deps" depends="init-ivy">
+    <mkdir dir="${lib}"/>
     <!-- Retrieves all dependencies from m2 repo -->
     <ivy:retrieve />
   </target>
 
-  <target name="init">
+  <target name="init" depends="fetch-deps">
     <tstamp/>
     <mkdir dir="${build}"/>
   </target>
 
   <target name="rhino">
     <ant dir="rhino" target="jar" inheritAll="false">
-      <property name="jarfile" value="${lib}/js.jar" />
+      <property name="jarfile" value="${lib}/js.jar"/>
     </ant>
   </target>
 
@@ -94,5 +95,6 @@
   <target name="clean">
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
+    <delete dir="${lib}"/>
   </target>
 </project>
