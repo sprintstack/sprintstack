@@ -1,60 +1,64 @@
 importClass(java.util.concurrent.atomic.AtomicReference)
-importClass(java.util.concurrent.CountDownLatch)
-importClass(Packages.org.fusesource.hawtdispatch.Dispatch)
+importClass(java.util.concurrent.FutureTask);
 
-var future = function(fn, auto) {
+dispatcher = com.sprintstack.Environment.getDefaultDispatcher();
+
+factory = function(fn) {
+  return new JavaAdapter(FutureTask,
+                    {
+                      setCallback: function(f) {
+                        this.callback.set(f);
+                        if (this.isDone()) this.done();
+                      },
+                      callback: new AtomicReference(),
+                      done: function() {
+                        if (this.callback.get())
+                          dispatcher.execute(this.callback.get());
+                    }}, fn);
+}
+
+var future = function(f) {
 
   var self = this;
 
-  this.val = new AtomicReference();
-  this.callback = new AtomicReference();
-  this.latch = new CountDownLatch(1);
+  if (f.constructor === Function) {
+    this.task = factory(f);
+    this.lazy = false;
+  } else {
+    this.task = f;
+    this.lazy = true;
+  }
 
   this.then = function(fn) {
-    var f = new future(fn, false);
-    this.callback.set(f);
-    // If current future has finished already,
-    // invoke the next one right away.
-    if (this.isComplete()) f.start(this.val.get());
-    return f;
+    var work = factory(function() {
+      return fn(self.await());
+    });
+    this.task.setCallback(work);
+
+    return new future(work);
   }
 
   this.await = function() {
-    this.latch.await();
-    return this.val.get();
+    return this.task.get();
   }
 
-  this.work = function(v) {
-    var val = fn(v);
-    self.val.set(val);
-    self.latch.countDown();
-    var cb = self.callback.get();
-    if (cb != null && !cb.isComplete())
-      cb.start(val);
+  this.done = function() {
+    return this.task.isDone();
   }
 
-  this.start = function(v) {
-    Dispatch.getGlobalQueue().execute(function() { self.work(v) });
-  }
-
-  this.isComplete = function() {
-    return (this.latch.getCount() == 0)
-  }
-
-  if (!auto) this.start();
+  if (!this.lazy) dispatcher.execute(this.task);
 }
 
 future.compose = function() {
   var args = Array.prototype.slice.call(arguments);
   if (arguments[0].constructor === Array) args = arguments[0];
 
-  var f = new future(function(v) {
-    return args.map(function(f) {
-      return f.await();
+  return new future(function() {
+    var composed = args.map(function(t) {
+      return t.await();
     });
-  }, false);
-
-  return f;
+    return composed;
+  });
 }
 
 module.exports = future;
