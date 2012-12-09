@@ -1,1 +1,4 @@
 
+[submodule "rhino"]
+	path = rhino
+	url = git://github.com/sprintstack/rhino.git
