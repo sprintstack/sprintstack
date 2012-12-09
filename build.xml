@@ -64,6 +64,7 @@
   <target name="init" depends="fetch-deps">
     <tstamp/>
     <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
   </target>
 
   <target name="rhino" depends="fetch-submodules">
@@ -89,7 +90,6 @@
   </target>
 
   <target name="uberjar" depends="jar">
-    <mkdir dir="${dist}"/>
     <jar jarfile="${dist}/sprintstack-standalone.jar"
          compress="true">
       <zipgroupfileset dir="${lib}" includes="*.jar"/>
