@@ -90,6 +90,8 @@ this.clearTimeout = timers.clearTimeout;
 
 this.alert = function(msg) { javax.swing.JOptionPane.showMessageDialog(null, msg); };
 
+// TODO: put these rather dashing 
+// extensions somewhere more appropriate
 Number.prototype.times = function(fn) {
   var i;
   for (i = 0; i < this; i++) {
@@ -97,3 +99,6 @@ Number.prototype.times = function(fn) {
   }
 };
 
+Array.prototype.equals = function(other) {
+  return !(this<other || other<this);
+};
