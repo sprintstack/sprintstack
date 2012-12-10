@@ -8,6 +8,7 @@ public class SprintStack {
         Main.setBootstrap(Environment.bootstrapPath());
         Main.main(args);
 
+        Environment.getShutdownLock().arriveAndAwaitAdvance();
         System.exit(0);
     }
 

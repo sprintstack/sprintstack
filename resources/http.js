@@ -74,10 +74,8 @@ var IncomingMessage = function(socket) {
 
   this.httpVersion = null;
   this.complete = false;
-  this.headers = {}
-  ;
-  this.trailers = {}
-  ;
+  this.headers = {};
+  this.trailers = {};
 
   this.readable = true;
 
@@ -255,9 +253,6 @@ var Server = function() {
     var connectionListener = arguments[1];
   }
 
-
-//  Dispatch.setAwait();
-
   var internalAddress = null;
 
   this.listen = function() {
@@ -283,17 +278,15 @@ var Server = function() {
 
     args.call(this, Array.prototype.slice.call(arguments));
 
-    new future(function() {
-      var internalAddress = new InetSocketAddress(host, port);
-      var factory = new NioServerSocketChannelFactory(Dispatch.createQueue(),
-                                                      Dispatch.getGlobalQueue());
-      var bootstrap = new ServerBootstrap(factory);
+    var internalAddress = new InetSocketAddress(host, port);
+    var factory = new NioServerSocketChannelFactory(Dispatch.getGlobalQueue(),
+                                                    Dispatch.getGlobalQueue());
+    var bootstrap = new ServerBootstrap(factory);
 
-      bootstrap.setPipelineFactory(Pipeline(connectionListener, {'context':context, 'handler':handler}));
-      bootstrap.bind(internalAddress);
-    }).then(cb).then(function(e) {
-      java.lang.System.out.println(e);
-    });
+    bootstrap.setPipelineFactory(Pipeline(connectionListener, {'context':context, 'handler':handler}));
+    bootstrap.bind(internalAddress);
+
+    com.sprintstack.Environment.incrementShutdownLock();
   };
 
 }
