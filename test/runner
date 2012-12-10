@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sprintstack punycode.js && \
+sprintstack url.js
