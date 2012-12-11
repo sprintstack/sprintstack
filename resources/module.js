@@ -82,6 +82,10 @@ var timers = require('timers');
 var future = require('future');
 var process = require('process');
 
+// Buffer
+var Buffer = require('buffer');
+this.Buffer = Buffer;
+
 this.console = console;
 this.setTimeout = timers.setTimeout;
 this.setInterval = timers.setInterval;
