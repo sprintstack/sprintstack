@@ -2,6 +2,8 @@
 
 Concurrent + Evented I/O for [Rhino](http://www.mozilla.org/rhino/).
 
+[![Build Status](https://travis-ci.org/sprintstack/sprintstack.png)](https://travis-ci.org/sprintstack/sprintstack)
+
 ## Getting started
 
 To run SprintStack, you'll need >= JDK 7. To build, you'll need ant.
