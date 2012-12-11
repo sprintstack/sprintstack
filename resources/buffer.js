@@ -3,7 +3,7 @@ importClass(java.nio.ByteBuffer);
 
 // Convert node.js => IANA charset names.
 // TODO: base 64 + hex charset providers
-var encodings = {
+var ENCODINGS = {
   "ascii": "US-ASCII",
   "utf8": "UTF-8",
   "utf16le": "UTF-16LE",
@@ -27,33 +27,26 @@ var Buffer = function(obj, encoding) {
     internalBuffer = ByteBuffer.allocate(obj);
   } else if (obj.constructor === Array)
   {
-    if (Buffer.isBuffer(obj[0])) {
-      // TODO: handle calls from Buffer.concat()
-      isContiguous = false;
-    } else {
-      internalBuffer = ByteBuffer.wrap(obj);
-    }
+    internalBuffer = ByteBuffer.wrap(obj);
   } else if (obj.constructor === String)
   {
     if (!encoding) encoding = 'UTF-8';
     javaString = new java.lang.String(obj);
     internalBuffer = ByteBuffer.wrap(javaString.getBytes(encoding));
+  } else if (obj instanceof ByteBuffer) {
+    internalBuffer = obj;
   }
 
   var buf = new JavaAdapter(ScriptableObject,
                             {put: function(index, start, val) {
-                              // Overrides ScriptableObject/put()
-                              // TODO: As Rhino dynamically dispatches
-                              // to the correct overload, it's not
-                              // obvious that this overrides the put
-                              // method with signature:
-                              // (int,Scriptable,Object). Should
-                              // probably have some kind of type check
-                              // to make sure 'index' really is a number.
+                              // We want to override the put() method with
+                              // the signature:
+                              // (int,Scriptable,Object).
                               this.super$put(index, start, val);
 
                               if (index.constructor === Number) {
                                 var num = (val & BYTE_CAST) - BYTE_OFFSET;
+
                                 internalBuffer.put(index, num);
                               }
                             },
@@ -77,12 +70,35 @@ var Buffer = function(obj, encoding) {
   };
   
   buf.toString = function(encoding, start, end) {
+    if (!encoding) encoding = 'utf8';
+    if (!start) start = 0;
+    if (!end) end = buf.length() - start;
+
+    var ianaEncoding = ENCODINGS[encoding];
+    var backingArray = internalBuffer.array().map(function(e) { return e + BYTE_OFFSET })
+    var foo = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, backingArray.length);
+
+    for (var i = 0; i < foo.length; i++)
+      foo[i] = backingArray[i];
+
+    var str = new java.lang.String(foo, start, end, ianaEncoding);
+    return str;
   };
 
   buf.copy = function(target, targetStart, sourceStart, sourceEnd) {
   };
 
   buf.slice = function(start, end) {
+    if (!start) start = 0;
+    if (!end) end = buf.length() - start;
+
+    // TODO: This is simpler than ByteBuffer.slice(), but
+    // array() is JVM-dependent. Investigate a better way
+    // of creating sub-Buffers?
+    var array = internalBuffer.array().slice(start, end);
+    var sliced = ByteBuffer.wrap(array);
+
+    return new Buffer(sliced);
   };
 
   return buf;
@@ -94,7 +110,7 @@ Buffer.isBuffer = function(buffer) {
 }
 
 Buffer.byteLength = function(str, encoding) {
-  // TODO
+  return new Buffer(str, encoding).length();
 }
 
 // concat is lazy. It doesn't join the contents of the buffers
@@ -103,7 +119,6 @@ Buffer.byteLength = function(str, encoding) {
 // As all the common Java N/IO channels support scattered reads + gathered
 // writes, this negates the need to perform any copying.
 Buffer.concat = function(buffers, totalLength) {
-  // TODO
 }
 
 module.exports = Buffer;
