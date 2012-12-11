@@ -5,7 +5,16 @@ var QueryString = function() {
 
   this.stringify = function(params) {
     var encoder = new QueryStringEncoder("");
-    for (var key in params) encoder.addParam(key, params[key]);
+    for (var key in params) {
+      val = params[key];
+      if (val.constructor === Array) {
+        val.forEach(function(v) {
+          encoder.addParam(key, v);
+        });
+      } else {
+        encoder.addParam(key, val);
+      }
+    }
     return encoder.toString().slice(1);
   }
 
