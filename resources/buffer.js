@@ -86,10 +86,6 @@ var Buffer = function(obj, encoding) {
 
     var ianaEncoding = ENCODINGS[encoding];
     var backingArray = internalBuffer.array().map(function(e) { return unsign(e) });
-/*    var foo = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, backingArray.length);
-
-    for (var i = 0; i < foo.length; i++)
-      foo[i] = backingArray[i];*/
 
     var str = new java.lang.String(backingArray, start, end, ianaEncoding);
     return str;
