@@ -5,24 +5,28 @@ wru.test([
     name: "buf.ctor length with int",
     test: function() {
       var b = new Buffer(10);
-      wru.assert(true, b.length() == 10);
+      wru.assert(true, b.length == 10);
     }
   },
   {
     name: "buf.ctor length with array",
     test: function() {
       var b = new Buffer([1,2,3]);
-      wru.assert(true, b.length() == 3);
+      wru.assert(true, b.length == 3);
+
+      wru.assert(true, b[0] == 1);
+      wru.assert(true, b[1] == 2);
+      wru.assert(true, b[2] == 3);
     }
   },
   {
     name: "buf.ctor length with utf8 string",
     test: function() {
       var b1 = new Buffer("hello");
-      wru.assert(true, b1.length() == 5);
+      wru.assert(true, b1.length == 5);
 
       var b2 = new Buffer("☃-⌘");
-      wru.assert(true, b2.length() == 7);
+      wru.assert(true, b2.length == 7);
     }
   },
   {
@@ -39,6 +43,14 @@ wru.test([
       var b = new Buffer(3);
       b[0] = 0x00;
       wru.assert(true, b[0] == 0);
+    }
+  },
+  {
+    name: "buf.put with oob positive byte value",
+    test: function() {
+      var b = new Buffer(3);
+      b[0] = 400;
+      wru.assert(true, b[0] == 144);
     }
   },
   {
@@ -89,7 +101,7 @@ wru.test([
       var buf1 = new Buffer("hello, world!");
       var buf2 = buf1.slice(0, 3);
 
-      wru.assert(true, buf2.length() == 3);
+      wru.assert(true, buf2.length == 3);
       wru.assert(true, buf2[0] == buf1[0]);
     }
   },
@@ -102,15 +114,18 @@ wru.test([
       for (var i = 0 ; i < 26 ; i++) {
         buf1[i] = i + 97; // 97 is ASCII a
       }
-      print(buf1.toString("ascii"))
-/*
-      
-      print(buf1.toString("ascii"))
+
       var buf2 = buf1.slice(0, 3);
-      print(buf2.toString());
-      buf1[0] = 33;
-      print(buf2.toString());
-*/
+
+      wru.assert(true, buf2.toString() == 'abc');
+      buf1[0] = 33; // 33 == ASCII '!'
+      wru.assert(true, buf2.toString() == '!bc');
+    }
+  },
+  {
+    name: "buf.slice from nonzero offset",
+    test: function() {
+      
     }
   }
 ]);

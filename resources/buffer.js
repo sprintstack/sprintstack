@@ -14,20 +14,25 @@ var ENCODINGS = {
 
 // Java byte value must fall within the range [-128, 127].
 // Since a node.js buffer octet has a value within [0, 255],
-// we don't care about negative values.
-var BYTE_OFFSET = 0x80; // 128
-var BYTE_CAST = 0xFF; // 255
+// we need to perform signed<=>unsigned conversions.
+function sign(n) {
+  if (n < 128) return n;
+  return (~n+1 & 0xFF) * -1
+}
+function unsign(n) { return n & 0xFF }
 
 var Buffer = function(obj, encoding) {
 
   var internalBuffer = null;
+  var internalCapacity = null;
 
   if (obj.constructor === Number)
   {
     internalBuffer = ByteBuffer.allocate(obj);
   } else if (obj.constructor === Array)
   {
-    internalBuffer = ByteBuffer.wrap(obj);
+    var signed = obj.map(function(a) { return sign(a) });
+    internalBuffer = ByteBuffer.wrap(signed);
   } else if (obj.constructor === String)
   {
     if (!encoding) encoding = 'UTF-8';
@@ -35,6 +40,10 @@ var Buffer = function(obj, encoding) {
     internalBuffer = ByteBuffer.wrap(javaString.getBytes(encoding));
   } else if (obj instanceof ByteBuffer) {
     internalBuffer = obj;
+    var options = encoding;
+    internalBuffer.position(options.start);
+    internalBuffer.limit(options.end);
+    internalCapacity = options.end - options.start;
   }
 
   var buf = new JavaAdapter(ScriptableObject,
@@ -45,8 +54,7 @@ var Buffer = function(obj, encoding) {
                               this.super$put(index, start, val);
 
                               if (index.constructor === Number) {
-                                var num = (val & BYTE_CAST) - BYTE_OFFSET;
-
+                                var num = sign(val);
                                 internalBuffer.put(index, num);
                               }
                             },
@@ -55,16 +63,18 @@ var Buffer = function(obj, encoding) {
                                if (index.constructor === String)
                                  return this.super$get(index, start);
 
-                               return internalBuffer.get(index) + BYTE_OFFSET;
+                               var signed = internalBuffer.get(index);
+                               return unsign(signed);
                              },
                              getClassName: function() {
                                return "Buffer";
                              }
                             });
 
-  buf.length = function() {
-    return internalBuffer.capacity();
-  };
+
+  buf.__defineGetter__("length", function() {
+    return (internalCapacity || internalBuffer.capacity());
+  });
 
   buf.write = function(str, offset, length, encoding) {                            
   };
@@ -72,16 +82,16 @@ var Buffer = function(obj, encoding) {
   buf.toString = function(encoding, start, end) {
     if (!encoding) encoding = 'utf8';
     if (!start) start = 0;
-    if (!end) end = buf.length() - start;
+    if (!end) end = (internalCapacity ||internalBuffer.capacity()) - start;
 
     var ianaEncoding = ENCODINGS[encoding];
-    var backingArray = internalBuffer.array().map(function(e) { return e + BYTE_OFFSET })
-    var foo = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, backingArray.length);
+    var backingArray = internalBuffer.array().map(function(e) { return unsign(e) });
+/*    var foo = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, backingArray.length);
 
     for (var i = 0; i < foo.length; i++)
-      foo[i] = backingArray[i];
+      foo[i] = backingArray[i];*/
 
-    var str = new java.lang.String(foo, start, end, ianaEncoding);
+    var str = new java.lang.String(backingArray, start, end, ianaEncoding);
     return str;
   };
 
@@ -90,15 +100,9 @@ var Buffer = function(obj, encoding) {
 
   buf.slice = function(start, end) {
     if (!start) start = 0;
-    if (!end) end = buf.length() - start;
+    if (!end) end = internalBuffer.capacity() - start;
 
-    // TODO: This is simpler than ByteBuffer.slice(), but
-    // array() is JVM-dependent. Investigate a better way
-    // of creating sub-Buffers?
-    var array = internalBuffer.array().slice(start, end);
-    var sliced = ByteBuffer.wrap(array);
-
-    return new Buffer(sliced);
+    return new Buffer(internalBuffer.slice(), {start: start, end: end});
   };
 
   return buf;
@@ -110,7 +114,7 @@ Buffer.isBuffer = function(buffer) {
 }
 
 Buffer.byteLength = function(str, encoding) {
-  return new Buffer(str, encoding).length();
+  return new Buffer(str, encoding).length;
 }
 
 // concat is lazy. It doesn't join the contents of the buffers
