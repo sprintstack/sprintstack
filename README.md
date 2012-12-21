@@ -12,7 +12,7 @@ To run SprintStack, you'll need >= JDK 7. To build, you'll need ant.
 
     git clone git@github.com:sprintstack/sprintstack.git
     cd sprintstack
-    ant jar
+    ant
 
 ### Run
 
