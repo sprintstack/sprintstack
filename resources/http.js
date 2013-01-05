@@ -25,8 +25,129 @@ importClass(Packages.org.jboss.netty.handler.codec.http.HttpRequest);
 importClass(Packages.org.jboss.netty.handler.codec.http.DefaultHttpResponse);
 importClass(Packages.org.jboss.netty.handler.ssl.SslHandler);
 
+var events = require('events');
 var ks = require('keystore');
 var match = require('match');
+var util = require('util');
+
+var HTTP_VERSIONS = {
+  "HTTP/1.0": "1.0",
+  "HTTP/1.1": "1.1"
+}
+
+var STATUS_CODES = exports.STATUS_CODES = {
+  100 : 'Continue',
+  101 : 'Switching Protocols',
+  102 : 'Processing',                 // RFC 2518, obsoleted by RFC
+  // 4918
+  200 : 'OK',
+  201 : 'Created',
+  202 : 'Accepted',
+  203 : 'Non-Authoritative Information',
+  204 : 'No Content',
+  205 : 'Reset Content',
+  206 : 'Partial Content',
+  207 : 'Multi-Status',               // RFC 4918
+  300 : 'Multiple Choices',
+  301 : 'Moved Permanently',
+  302 : 'Moved Temporarily',
+  303 : 'See Other',
+  304 : 'Not Modified',
+  305 : 'Use Proxy',
+  307 : 'Temporary Redirect',
+  400 : 'Bad Request',
+  401 : 'Unauthorized',
+  402 : 'Payment Required',
+  403 : 'Forbidden',
+  404 : 'Not Found',
+  405 : 'Method Not Allowed',
+  406 : 'Not Acceptable',
+  407 : 'Proxy Authentication Required',
+  408 : 'Request Time-out',
+  409 : 'Conflict',
+  410 : 'Gone',
+  411 : 'Length Required',
+  412 : 'Precondition Failed',
+  413 : 'Request Entity Too Large',
+  414 : 'Request-URI Too Large',
+  415 : 'Unsupported Media Type',
+  416 : 'Requested Range Not Satisfiable',
+  417 : 'Expectation Failed',
+  418 : 'I\'m a teapot',              // RFC 2324
+  422 : 'Unprocessable Entity',       // RFC 4918
+  423 : 'Locked',                     // RFC 4918
+  424 : 'Failed Dependency',          // RFC 4918
+  425 : 'Unordered Collection',       // RFC 4918
+  426 : 'Upgrade Required',           // RFC 2817
+  428 : 'Precondition Required',      // RFC 6585
+  429 : 'Too Many Requests',          // RFC 6585
+  431 : 'Request Header Fields Too Large',// RFC 6585
+  500 : 'Internal Server Error',
+  501 : 'Not Implemented',
+  502 : 'Bad Gateway',
+  503 : 'Service Unavailable',
+  504 : 'Gateway Time-out',
+  505 : 'HTTP Version not supported',
+  506 : 'Variant Also Negotiates',    // RFC 2295
+  507 : 'Insufficient Storage',       // RFC 4918
+  509 : 'Bandwidth Limit Exceeded',
+  510 : 'Not Extended',               // RFC 2774
+  511 : 'Network Authentication Required' // RFC 6585
+};
+
+var NETTY_STATUS_CODES = {
+  100: HttpResponseStatus.CONTINUE,
+  101: HttpResponseStatus.SWITCHING_PROTOCOLS,
+  102: HttpResponseStatus.PROCESSING,
+  201: HttpResponseStatus.CREATED,
+  200: HttpResponseStatus.OK,
+  202: HttpResponseStatus.ACCEPTED,
+  203: HttpResponseStatus.NON_AUTHORITATIVE_INFORMATION,
+  204: HttpResponseStatus.NO_CONTENT,
+  205: HttpResponseStatus.RESET_CONTENT,
+  206: HttpResponseStatus.PARTIAL_CONTENT,
+  207: HttpResponseStatus.MULTI_STATUS,
+  300: HttpResponseStatus.MULTIPLE_CHOICES,
+  301: HttpResponseStatus.MOVED_PERMANENTLY,
+  302: HttpResponseStatus.FOUND,
+  303: HttpResponseStatus.SEE_OTHER,
+  304: HttpResponseStatus.NOT_MODIFIED,
+  305: HttpResponseStatus.USE_PROXY,
+  307: HttpResponseStatus.TEMPORARY_REDIRECT,
+  400: HttpResponseStatus.BAD_REQUEST,
+  401: HttpResponseStatus.UNAUTHORIZED,
+  402: HttpResponseStatus.PAYMENT_REQUIRED,
+  403: HttpResponseStatus.FORBIDDEN,
+  404: HttpResponseStatus.NOT_FOUND,
+  405: HttpResponseStatus.METHOD_NOT_ALLOWED,
+  406: HttpResponseStatus.NOT_ACCEPTABLE,
+  407: HttpResponseStatus.PROXY_AUTHENTICATION_REQUIRED,
+  408: HttpResponseStatus.REQUEST_TIMEOUT,
+  410: HttpResponseStatus.GONE,
+  411: HttpResponseStatus.LENGTH_REQUIRED,
+  412: HttpResponseStatus.PRECONDITION_FAILED,
+  413: HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE,
+  414: HttpResponseStatus.REQUEST_URI_TOO_LONG,
+  415: HttpResponseStatus.UNSUPPORTED_MEDIA_TYPE,
+  416: HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
+  417: HttpResponseStatus.EXPECTATION_FAILED,
+  423: HttpResponseStatus.LOCKED,
+  422: HttpResponseStatus.UNPROCESSABLE_ENTITY,
+  424: HttpResponseStatus.FAILED_DEPENDENCY,
+  425: HttpResponseStatus.UNORDERED_COLLECTION,
+  426: HttpResponseStatus.UPGRADE_REQUIRED,
+  409: HttpResponseStatus.CONFLICT,  
+  500: HttpResponseStatus.INTERNAL_SERVER_ERROR,
+  501: HttpResponseStatus.NOT_IMPLEMENTED,
+  502: HttpResponseStatus.BAD_GATEWAY,
+  503: HttpResponseStatus.SERVICE_UNAVAILABLE,
+  504: HttpResponseStatus.GATEWAY_TIMEOUT,
+  507: HttpResponseStatus.INSUFFICIENT_STORAGE,
+  505: HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED,
+  506: HttpResponseStatus.VARIANT_ALSO_NEGOTIATES,
+  510: HttpResponseStatus.NOT_EXTENDED
+}
+
 
 var Pipeline = function(connectionListener, options) {
   return new JavaAdapter(ChannelPipelineFactory, {getPipeline: function() {
@@ -48,9 +169,6 @@ var Pipeline = function(connectionListener, options) {
     return pipeline;
   }});
 }
-
-
-var status = {200: HttpResponseStatus.OK};
 
 
 var EmptyServerRequest = function(observers) {
@@ -97,23 +215,9 @@ var IncomingMessage = function(socket) {
 
 var ServerRequest = function(ctx, e, observers) {
 
-  this.on = function(msg, fn) {
-    observers.push([msg, fn]);
-  }
-
-  this.emit = function() {
-    var args = Array.prototype.slice.call(arguments);
-    var msg = args.splice(0,1);
-    var fns = observers.filter(function(e) {
-      return e[0] == msg;
-    }).forEach(function(f) {
-      f[1].apply(null, args);
-    });
-  }
-
   this.url = e.getMessage().getUri();
 
-  this.method = e.getMessage().getMethod();
+  this.method = e.getMessage().getMethod().toString();
 
   function buildHeaders() {
     var headers = {};
@@ -127,14 +231,7 @@ var ServerRequest = function(ctx, e, observers) {
 
   this.headers = buildHeaders();
 
-  function getVersion() {
-    switch (e.getMessage().getProtocolVersion()) {
-    case HttpVersion.HTTP_1_0: return "1.0";
-    case HttpVersion.HTTP_1_1: return "1.1";
-    }
-  }
-
-  this.httpVersion = getVersion();
+  this.httpVersion = HTTP_VERSIONS[e.getMessage().getProtocolVersion().toString()];
 
   this.getCookies = function() {
     var cstr = e.getMessage().getHeader(HttpHeaders.Names.COOKIE);
@@ -157,10 +254,12 @@ var ServerRequest = function(ctx, e, observers) {
 
 }
 
+util.inherits(ServerRequest, events.EventEmitter);
 
 var ServerResponse = function(ctx, e) {
 
   this.headers = {};
+  this._headers = this.headers;
 
   this.statusCode = 200;
 
@@ -187,20 +286,20 @@ var ServerResponse = function(ctx, e) {
   }
 
   this.write = function(msg, cb) {
-    var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status[this.statusCode]);
+    var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, NETTY_STATUS_CODES[this.statusCode]);
     response.setContent(ChannelBuffers.copiedBuffer(msg, "UTF-8"));
     if (this.cookieEncoder) response.setHeader(HttpHeaders.Names.SET_COOKIE, this.cookieEncoder.encode());
     for (var key in this.headers) response.setHeader(key, this.headers[key]);
-    var f = e.getChannel().write(response);
-    if (cb == null) return f;
-    f.addListener(
+    var writeFuture = e.getChannel().write(response);
+    if (cb == null) return writeFuture;
+    writeFuture.addListener(
       new JavaAdapter(ChannelFutureListener, {
         operationComplete: cb
       }));
   }
 
   this.end = function(msg) {
-    if (msg == null) e.getChannel.close();
+    if (!msg) e.getChannel().close();
     else
     this.write(msg, function(f) {
       f.getChannel().close();
@@ -215,6 +314,7 @@ var ServerResponse = function(ctx, e) {
 
 };
 
+util.inherits(ServerResponse, events.EventEmitter);
 
 var ServerHandler = function(connectionListener) {
   return new JavaAdapter(SimpleChannelUpstreamHandler, {
