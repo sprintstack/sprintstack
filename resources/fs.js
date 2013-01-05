@@ -6,48 +6,68 @@ importClass(java.nio.charset.Charset);
 
 var charset = Charset.forName("UTF-8");
 
-var Fs = function() {
-
-  this.getFullPath = function (path) {
-    if (path[0] != '/') {
-      path = this.dir + '/' + path;
-    }
-    return path;
+var Stats = function(obj) {
+  this.isFile = function() {
+    return obj.isFile();
   }
 
-  this.writeFileSync = function(filename, data) {
-    var f = new RandomAccessFile(filename, 'rwd');
-    var fc = f.getChannel();
-    var bb = ByteBuffer.wrap(new java.lang.String(data).getBytes('UTF-8'));
-    fc.write(bb);
+  this.isDirectory = function() {
+    return obj.isDirectory();
   }
 
-  this.readFileSync = function(filename, encoding) {
-    var fullPath = this.getFullPath(filename);
-    var f = new RandomAccessFile(fullPath, 'r');
-    var fc = f.getChannel();
-    var bb = ByteBuffer.allocate(512);
-
-    var out = "";
-
-    while (fc.read(bb) != -1) {
-      var decoded = charset.decode(bb);
-      out.concat(decoded.toString());
-      bb.clear();
-      bb.rewind();
-    }
-
-    return out;
+  this.isBlockDevice = function() {
+    throw new Error("isBlockDevice unimplemented");
   }
 
-  this.readdirSync = function(path) {
-    var fullPath = this.getFullPath(path);
-    var fd = new File(fullPath);
-    return fd.list().map(function(d) {
-      return d;
-    });
+  this.isCharacterDevice = function() {
+    throw new Error("isCharacterDevice unimplemented");
   }
 
+  this.isFIFO = function() {
+    throw new Error("isFIFO unimplemented");
+  }
+
+  this.isSocket = function() {
+    throw new Error("isSocket unimplemented");
+  }
 }
 
-module.exports = new Fs();
+exports.Stats = Stats;
+
+exports.writeFileSync = function(filename, data) {
+  var f = new RandomAccessFile(filename, 'rwd');
+  var fc = f.getChannel();
+  var bb = ByteBuffer.wrap(new java.lang.String(data).getBytes('UTF-8'));
+  fc.write(bb);
+};
+
+exports.readFileSync = function(filename, encoding) {
+  var fullPath = this.getFullPath(filename);
+  var f = new RandomAccessFile(fullPath, 'r');
+  var fc = f.getChannel();
+  var bb = ByteBuffer.allocate(512);
+
+  var out = "";
+
+  while (fc.read(bb) != -1) {
+    var decoded = charset.decode(bb);
+    out.concat(decoded.toString());
+    bb.clear();
+    bb.rewind();
+  }
+
+  return out;
+}
+
+exports.readdirSync = function(path) {
+  var fd = new File(path);
+  return fd.list().map(function(d) {
+    return d;
+  });
+}
+
+exports.statSync = function(path) {
+  var obj = new File(path);
+  return new Stats(obj);
+}
+

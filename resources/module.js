@@ -67,9 +67,6 @@ var require = function(id) {
 
   if (req != null) req.dir = __dirname;
 
-//  print(id)
-//  print(__filename)
-
   return req;
 }
 
