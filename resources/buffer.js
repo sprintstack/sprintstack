@@ -6,6 +6,7 @@ importClass(java.nio.ByteBuffer);
 var ENCODINGS = {
   "ascii": "US-ASCII",
   "utf8": "UTF-8",
+  "utf-8": "UTF-8",
   "utf16le": "UTF-16LE",
   "ucs2": "UTF-16LE",
   "base64": "",
@@ -35,9 +36,9 @@ var Buffer = function(obj, encoding) {
     internalBuffer = ByteBuffer.wrap(signed);
   } else if (obj.constructor === String)
   {
-    if (!encoding) encoding = 'UTF-8';
+    if (!encoding) encoding = 'utf8';
     javaString = new java.lang.String(obj);
-    internalBuffer = ByteBuffer.wrap(javaString.getBytes(encoding));
+    internalBuffer = ByteBuffer.wrap(javaString.getBytes(ENCODINGS[encoding]));
   } else if (obj instanceof ByteBuffer) {
     internalBuffer = obj;
     var options = encoding;
@@ -71,18 +72,72 @@ var Buffer = function(obj, encoding) {
                              }
                             });
 
+  buf.__internalBuffer = internalBuffer;
+
+  buf._charsWritten = 0;
 
   buf.__defineGetter__("length", function() {
     return (internalCapacity || internalBuffer.capacity());
   });
 
-  buf.write = function(str, offset, length, encoding) {                            
+  buf.write = function(string, offset, length, encoding) {
+    // Support both (string, offset, length, encoding)
+    // and the legacy (string, encoding, offset, length)
+    if (isFinite(offset)) {
+      if (!isFinite(length)) {
+        encoding = length;
+        length = undefined;
+      }
+    } else {  // legacy
+      var swap = encoding;
+      encoding = offset;
+      offset = length;
+      length = swap;
+    }
+
+    offset = +offset || 0;
+    var remaining = buf.length - offset;
+    if (!length) {
+      length = remaining;
+    } else {
+      length = +length;
+      if (length > remaining) {
+        length = remaining;
+      }
+    }
+
+    ianaEncoding = ENCODINGS[encoding];
+
+    var rawString = new java.lang.String(string);
+    var rawBytes = rawString.getBytes(ianaEncoding);
+
+    internalBuffer.position(offset);
+    var oldLimit = internalBuffer.limit();
+    internalBuffer.limit(length);
+
+    // When rawBytes is bigger than the
+    // ByteBuffer's remaining capacity
+    // Java throws a BufferOverflowException
+    // whereas node 'fails' silently, so
+    // let's check beforehand
+    if (rawBytes.length > internalBuffer.remaining()) {
+      // TODO: check we're not writing partial characters
+      // after performing a slice()
+      rawBytes = rawBytes.slice(0, internalBuffer.remaining());
+    }
+
+    internalBuffer.put(rawBytes);
+
+    internalBuffer.limit(oldLimit);
+    buf._charsWritten = rawBytes.length;
+
+    return buf._charsWritten;
   };
   
   buf.toString = function(encoding, start, end) {
     if (!encoding) encoding = 'utf8';
     if (!start) start = 0;
-    if (!end) end = (internalCapacity ||internalBuffer.capacity()) - start;
+    if (!end) end = buf.length - start;
 
     var ianaEncoding = ENCODINGS[encoding];
     var backingArray = internalBuffer.array().map(function(e) { return unsign(e) });
@@ -91,7 +146,40 @@ var Buffer = function(obj, encoding) {
     return str;
   };
 
-  buf.copy = function(target, targetStart, sourceStart, sourceEnd) {
+  buf.copy = function(target, target_start, start, end) {
+    var source = buf;
+    start || (start = 0);
+    end || (end = source.length);
+    target_start || (target_start = 0);
+
+    if (end < start) throw new Error('sourceEnd < sourceStart');
+
+    // Copy 0 bytes; we're done
+    if (end === start) return 0;
+    if (target.length == 0 || source.length == 0) return 0;
+
+    if (target_start < 0 || target_start >= target.length) {
+      throw new Error('targetStart out of bounds');}
+
+    if (start < 0 || start >= source.length) {
+      throw new Error('sourceStart out of bounds');}
+
+    if (end < 0 || end > source.length) {
+      throw new Error('sourceEnd out of bounds');}
+
+    // Are we oob?
+    if (end > source.length) end = source.length;
+
+    if (target.length - target_start < end - start) {
+      end = target.length - target_start + start;
+    }
+
+    source.__internalBuffer.limit(end);
+    source.__internalBuffer.position(start);
+    target.__internalBuffer.position(target_start);
+  
+    print(internalBuffer)
+    target.__internalBuffer.put(internalBuffer);
   };
 
   buf.slice = function(start, end) {
@@ -104,7 +192,7 @@ var Buffer = function(obj, encoding) {
   return buf;
 }
 
-//Static methods
+// Static methods
 Buffer.isBuffer = function(buffer) {
   return buffer instanceof Buffer;
 }
@@ -113,13 +201,35 @@ Buffer.byteLength = function(str, encoding) {
   return new Buffer(str, encoding).length;
 }
 
-// concat is lazy. It doesn't join the contents of the buffers
-// together and return a new one; instead it returns a 'pseudo-Buffer'
-// which, to the consumer behaves like one contiguous block of memory.
-// As all the common Java N/IO channels support scattered reads + gathered
-// writes, this negates the need to perform any copying.
-Buffer.concat = function(buffers, totalLength) {
-}
+// straight from Joyent's implementation
+Buffer.concat = function(list, length) {
+  if (!Array.isArray(list)) {
+    throw new Error('Usage: Buffer.concat(list, [length])');}
+     
+
+  if (list.length === 0) {
+    return new Buffer(0);}
+   else if (list.length === 1) {
+    return list[0];}
+   
+
+  if (typeof length !== 'number') {
+    length = 0;
+    for (var i = 0; i < list.length; i++) {
+      var buf = list[i];
+      length += buf.length;}}
+  
+
+  var buffer = new Buffer(length);
+  var pos = 0;
+  for (var i = 0; i < list.length; i++) {
+    var buf = list[i];
+    buf.copy(buffer, pos);
+    pos += buf.length;}
+  
+  return buffer;
+};
+
 
 module.exports = Buffer;
 

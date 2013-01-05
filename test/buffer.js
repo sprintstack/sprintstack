@@ -72,14 +72,38 @@ wru.test([
     }
   },
   {
+    name: "Buffer.write",
+    test: function() {
+      var buf = new Buffer(5);
+
+      wru.assert(true, buf._charsWritten == 0);
+
+      wru.assert(true, buf.write("Hellooo", "utf8") == 5);
+      wru.assert(true, buf._charsWritten == 5);
+    }
+  },
+  {
+    name: "Buffer.copy",
+    test: function() {
+/*      // From docs.nodejitsu.com
+      var frosty = new Buffer(24);
+      var snowman = new Buffer("☃", "utf-8");
+
+      frosty.write("Happy birthday! ", "utf-8");
+      snowman.copy(frosty, 16);
+
+      console.log(frosty.toString());/*
+    }
+  },
+  {
     name: "Buffer.concat with two buffers",
     test: function() {
-      var b1 = new Buffer("foo");
+/*      var b1 = new Buffer("foo");
       var b2 = new Buffer("bar");
 
       var b3 = Buffer.concat([b1,b2]);
 
-      // TODO: non-contiguous buffer
+      wru.assert(true, b3.length == (b1.length + b2.length));*/
     }
   },
   {
