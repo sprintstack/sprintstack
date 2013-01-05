@@ -12,6 +12,10 @@ var OS = function() {
     return System.getProperty('os.name').toString();
   }
 
+  this.platform = function() {
+    return 'Java';
+  }
+
   this.arch = function() {
     return System.getProperty('os.arch').toString();
   }
