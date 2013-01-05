@@ -98,12 +98,12 @@ wru.test([
   {
     name: "Buffer.concat with two buffers",
     test: function() {
-/*      var b1 = new Buffer("foo");
+      var b1 = new Buffer("foo");
       var b2 = new Buffer("bar");
 
       var b3 = Buffer.concat([b1,b2]);
 
-      wru.assert(true, b3.length == (b1.length + b2.length));*/
+      wru.assert(true, b3.length == (b1.length + b2.length));
     }
   },
   {
@@ -148,7 +148,7 @@ wru.test([
   {
     name: "buf.slice from nonzero offset",
     test: function() {
-      
+      // TODO
     }
   }
 ]);
