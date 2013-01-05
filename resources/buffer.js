@@ -135,14 +135,35 @@ var Buffer = function(obj, encoding) {
   };
   
   buf.toString = function(encoding, start, end) {
-    if (!encoding) encoding = 'utf8';
-    if (!start) start = 0;
-    if (!end) end = buf.length - start;
+    encoding = String(encoding || 'utf8').toLowerCase();
+
+    if (typeof start == 'undefined' || start < 0) {
+      start = 0;
+    }
+    else if (start > buf.length) {
+      start = buf.length;
+    }
+
+    if (typeof end == 'undefined' || end > buf.length) {
+      end = buf.length;
+    }
+    else if (end < 0) {
+      end = 0;
+    }
 
     var ianaEncoding = ENCODINGS[encoding];
-    var backingArray = internalBuffer.array().map(function(e) { return unsign(e) });
 
-    var str = new java.lang.String(backingArray, start, end, ianaEncoding);
+    var oldLimit = internalBuffer.limit();
+    internalBuffer.limit(end);
+    internalBuffer.position(start);
+
+    var backingArray = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, internalBuffer.remaining());
+    internalBuffer.get(backingArray);
+
+    var str = new java.lang.String(backingArray, ianaEncoding);
+
+    internalBuffer.limit(oldLimit);
+
     return str;
   };
 
@@ -177,9 +198,8 @@ var Buffer = function(obj, encoding) {
     source.__internalBuffer.limit(end);
     source.__internalBuffer.position(start);
     target.__internalBuffer.position(target_start);
-  
-    print(internalBuffer)
-    target.__internalBuffer.put(internalBuffer);
+
+    target.__internalBuffer.put(source.__internalBuffer);
   };
 
   buf.slice = function(start, end) {

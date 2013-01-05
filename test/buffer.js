@@ -78,21 +78,21 @@ wru.test([
 
       wru.assert(true, buf._charsWritten == 0);
 
-      wru.assert(true, buf.write("Hellooo", "utf8") == 5);
+      wru.assert(true, buf.write("Hello", "utf8") == 5);
       wru.assert(true, buf._charsWritten == 5);
     }
   },
   {
     name: "Buffer.copy",
     test: function() {
-/*      // From docs.nodejitsu.com
+      // From docs.nodejitsu.com
       var frosty = new Buffer(24);
       var snowman = new Buffer("☃", "utf-8");
 
       frosty.write("Happy birthday! ", "utf-8");
       snowman.copy(frosty, 16);
 
-      console.log(frosty.toString());/*
+      console.log(frosty.toString());
     }
   },
   {
@@ -115,8 +115,7 @@ wru.test([
       // With no argument it should default to utf8
       wru.assert(true, buf.toString() == content);
       wru.assert(true, buf.toString('utf8') == content);
-
-      wru.assert(true, buf.toString('utf8', 1, 3) == "ell");
+      wru.assert(true, buf.toString('utf8', 1, 3) == "el");
     }
   },
   {
